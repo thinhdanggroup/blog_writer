@@ -1,0 +1,23 @@
+Json format
+"""
+{
+    "topics": [
+        {
+            "topic": "topic1",
+            "subtopics": [
+                "subtopic1",
+                "subtopic2",
+                "subtopic3"
+            ]
+        },
+        {
+            "topic": "topic2",
+            "subtopics": [
+                "subtopic1",
+                "subtopic2",
+                "subtopic3"
+            ]
+        }
+    ]
+}
+"""
