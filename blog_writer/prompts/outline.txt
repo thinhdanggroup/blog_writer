@@ -4,12 +4,14 @@ You must think step-by-step by writing outline firstly.
 
 You receive input:
 
-Subject (focus to this subject to deliver information to reader): ...
-Reference documents: ...
+Subject in tag <subject>: you focus to this subject to deliver information to reader
+Reference documents in tag <reference>: you can refer to these documents to write outline
+
+The description about the blog post must be attractive to readers. You must use your outline to write the description. The description must have at least 200 words.
 
 Your output format in JSON:
 {
-  "title": "How to write a technical article",
+  "title": "title", # title of your blog post, it should be short and easy to understand
   "outline": [
     {
       "header": "Introduction",
@@ -32,5 +34,6 @@ Your output format in JSON:
       "header": "Conclusion",
       "short_description": "..."
     }
-  ]
+  ],
+  "description": "description"
 }

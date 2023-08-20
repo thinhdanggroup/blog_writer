@@ -1,11 +1,18 @@
+import json
+from typing import Optional
+
 import requests
 from bs4 import BeautifulSoup
-from langchain.schema import HumanMessage
+from langchain.schema import HumanMessage, SystemMessage
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
 from blog_writer.utils.llm import create_chat_model
 
 from .base import WebExtractorInterface
+from ..model.search import Document, Answer
+from ..prompts import load_agent_prompt
+from ..utils.file import read_file
+from ..utils.stream_console import StreamConsoleCallbackManager
 
 
 class WebExtractor(WebExtractorInterface):
@@ -13,7 +20,7 @@ class WebExtractor(WebExtractorInterface):
         self._extractor_config = extractor_config
         self._model_config = model_config
 
-    def extract(self, url: str, query: str) -> str:
+    def extract(self, url: str, query: str) -> Optional[Document]:
         page_source = requests.get(url=url).content
         soup = BeautifulSoup(page_source, "html.parser")
 
@@ -26,7 +33,11 @@ class WebExtractor(WebExtractorInterface):
         chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
         text = "\n".join(chunk for chunk in chunks if chunk)
 
-        return self._summarize_text(text=text, question=query)
+        doc = self._summarize_text(text=text, question=query)
+        if doc is None:
+            return None
+        doc.url = url
+        return doc
 
     def _get_text(self, soup: BeautifulSoup):
         text = ""
@@ -35,26 +46,51 @@ class WebExtractor(WebExtractorInterface):
             text += element.text + "\n\n"
         return text
 
-    def _summarize_text(self, text: str, question: str) -> str:
+    def _summarize_text(self, text: str, question: str) -> Optional[Document]:
         if not text:
-            return "Error: No text to summarize"
+            return None
 
         if not self._extractor_config.with_summary:
-            return text
+            return None
 
         model = create_chat_model(
             temperature=self._extractor_config.temperature,
             model_config=self._model_config,
-            max_tokens=1000,
+            max_tokens=2000,
+            stream_callback_manager=StreamConsoleCallbackManager()
         )
 
-        return model([self._create_message(text=text, question=question)]).content
+        data = model([self._get_system_prompt(), self._create_message(text=text, question=question)]).content
+        result = json.loads(data)
+        text_result = Document()
+        for question in result.get("questions", []):
+            if not question.get("has_answer", False):
+                continue
+            q = question.get("question", "")
 
-    def _create_message(self, text: str, question: str) -> HumanMessage:
+            if "answer" not in question:
+                continue
+            text_result.answers.append(
+                Answer(question=q, answer=question["answer"])
+            )
+        return text_result
+
+    @staticmethod
+    def _get_system_prompt() -> SystemMessage:
+        return SystemMessage(
+            content=load_agent_prompt("extract")
+        )
+
+    @staticmethod
+    def _create_message(text: str, question: str) -> HumanMessage:
+        msg = "<web_site_content>"
+        msg += text
+        msg += "</web_site_content>"
+
+        msg += "<questions>"
+        msg += question
+        msg += "</questions>"
+
         return HumanMessage(
-            content=f'"""{text}""" Using the above text, answer the following'
-            f' questions: "{question}" -- if the questions cannot be answered using the text.'
-            "You return <status>fail<status> if the text is not relevant to questions."
-            "Include all factual information, numbers, stats etc if available. Write detail step-by-step answer if possible."
-            "If questions about how to implement something, write a step-by-step guide and code if possible."
+            content=msg
         )

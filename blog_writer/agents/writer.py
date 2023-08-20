@@ -5,7 +5,10 @@ from langchain.schema import HumanMessage, SystemMessage
 
 from blog_writer.agents.base import AgentInterface
 from blog_writer.config.logger import logger
+from blog_writer.model.search import SearchResult
 from blog_writer.prompts import load_agent_prompt
+from blog_writer.utils.encoder import ObjectEncoder
+from blog_writer.utils.file import wrap_text_with_tag
 
 
 class WriterAgentOutput:
@@ -23,33 +26,23 @@ class WriterAgent(AgentInterface):
     def render_human_message(
             self,
             subject: str,
-            references: Dict[str, List[str]],
+            references: SearchResult,
             previous_content: str,
             current_session: str,
+            suggestions: str,
     ):
-        content = f"Subject: {subject}\n"
+        content = wrap_text_with_tag(subject, "subject")
 
         # reference docs
-        content += "Reference documents:\n"
-        for doc, msg in references.items():
-            list_docs = 'Topic:' + doc + "\n" + '\n'.join(msg)
-            content += f"{list_docs}\n"
-
-        # outline
-        # outline_content = "Outline :\n"
-        # i = 1
-        # for o in outline:
-        #     outline_content += f"{i}: {o['header']}:{o['short_description']}\n"
-        #     i = i + 1
-        # content += outline_content
+        content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
 
         # previous content
-        content += "Previous content of blog from another engineer: " + previous_content + '\n'
+        content += wrap_text_with_tag(previous_content, "previous_content")
 
         # current session
-        content += "Your part that you write: " + current_session + '\n'
+        content += wrap_text_with_tag(current_session, "title_and_content")
 
-        # previous content
+        content += wrap_text_with_tag(suggestions, "suggestions")
 
         logger.info("\033[31m****Writer Agent human message****\n%s\033[0m", content)
         return HumanMessage(content=content)
@@ -57,15 +50,17 @@ class WriterAgent(AgentInterface):
     def run(
             self,
             topic: str,
-            references: Dict[str, List[str]],
+            references: SearchResult,
             previous_content: str,
             current_session: str,
+            suggestions: str,
     ) -> WriterAgentOutput:
         human_message = self.render_human_message(
             subject=topic,
             references=references,
             previous_content=previous_content,
             current_session=current_session,
+            suggestions=suggestions,
         )
 
         messages = [

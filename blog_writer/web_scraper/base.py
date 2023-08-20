@@ -1,5 +1,7 @@
 import abc
-from typing import List
+from typing import List, Optional
+
+from blog_writer.model.search import Document
 
 
 class WebSearcherInterface:
@@ -10,11 +12,11 @@ class WebSearcherInterface:
 
 class WebExtractorInterface:
     @abc.abstractmethod
-    def extract(self, url: str, query: str) -> str:
+    def extract(self, url: str, query: str) -> Optional[Document]:
         pass
 
 
 class WebScraperInterface:
     @abc.abstractmethod
-    def scrape(self, query: str, questions: List[str]) -> List[str]:
+    def scrape(self, query: str, questions: List[str]) -> List[Document]:
         pass

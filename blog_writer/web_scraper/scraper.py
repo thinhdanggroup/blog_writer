@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Optional
 
 import openai
 import requests
@@ -8,6 +8,8 @@ from blog_writer.config.config import ModelConfig, WebExtractorConfig, WebSearch
 from blog_writer.config.logger import logger
 from .base import WebScraperInterface
 from .factory import create_web_extractor, create_web_search
+from ..model.search import Document
+from ..utils.file import wrap_text_with_tag
 
 
 class WebScraper(WebScraperInterface):
@@ -23,9 +25,10 @@ class WebScraper(WebScraperInterface):
             extractor_config=web_extractor_config,
         )
 
-    def scrape(self, query: str, questions: List[str]) -> List[str]:
+    def scrape(self, query: str, questions: List[str]) -> List[Document]:
+        query += ' -inurl:medium.com'
         hrefs = self._web_searcher.search(query=query)
-        contents: List[str] = []
+        ref_sources = []
 
         asked = "\n".join(questions)
         for href in hrefs:
@@ -39,14 +42,8 @@ class WebScraper(WebScraperInterface):
                     continue
 
                 logger.info("Extracting from %s", href)
-                content = self._web_extractor.extract(url=href, query=asked)
-                if content == "Error: No text to summarize":
-                    continue
-
-                contents.append(content)
-                logger.info(
-                    "Extracting content \nhref: %s \ncontent: %s", href, content
-                )
+                search_result: Optional[Document] = self._web_extractor.extract(url=href, query=asked)
+                ref_sources.append(search_result)
             except KeyboardInterrupt:
                 logger.warning("Keyboard interrupt")
                 exit(0)
@@ -57,4 +54,4 @@ class WebScraper(WebScraperInterface):
             except Exception as e:
                 logger.exception("Error when extracting from %s %s", href, e)
 
-        return contents
+        return ref_sources

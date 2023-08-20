@@ -26,7 +26,7 @@ class GoogleSearch(WebSearcherInterface):
             func=self._top_results,
         )
         google_search_results = google_search_tool.run(query)
-        urls = [r["link"] for r in google_search_results]
+        urls = [r["link"] for r in google_search_results if "link" in r]
         return urls
 
 

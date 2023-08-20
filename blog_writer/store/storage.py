@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from blog_writer.config.definitions import ROOT_DIR
 from blog_writer.utils.file import write_file, read_file
@@ -20,4 +21,5 @@ class Storage:
     def _get_working_folder(self, name: str) -> str:
         dt = datetime.now()
         unique_time = dt.strftime('%y%m%d%H%M%S')
-        return unique_time + "_" + name.strip().replace(" ", "_").lower()[0:20]
+        name = re.sub('[^a-zA-Z0-9-_]', '-', name.strip().replace(" ", "_").lower()[0:20])
+        return unique_time + "_" + name
