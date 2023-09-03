@@ -24,6 +24,7 @@ class WebScraper(WebScraperInterface):
             model_config=model_config,
             extractor_config=web_extractor_config,
         )
+        self._max_result = web_search_config.num_results
 
     def scrape(self, query: str, questions: List[str]) -> List[Document]:
         query += ' -inurl:medium.com'
@@ -31,6 +32,7 @@ class WebScraper(WebScraperInterface):
         ref_sources = []
 
         asked = "\n".join(questions)
+        found = 0
         for href in hrefs:
             try:
                 if href.endswith(".pdf"):
@@ -43,7 +45,14 @@ class WebScraper(WebScraperInterface):
 
                 logger.info("Extracting from %s", href)
                 search_result: Optional[Document] = self._web_extractor.extract(url=href, query=asked)
+                if search_result is None or len(search_result.answers) == 0:
+                    continue
+
+                search_result.href = href
+                found += 1
                 ref_sources.append(search_result)
+                if found >= self._max_result:
+                    break
             except KeyboardInterrupt:
                 logger.warning("Keyboard interrupt")
                 exit(0)

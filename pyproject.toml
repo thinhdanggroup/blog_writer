@@ -15,6 +15,7 @@ duckduckgo-search = "^3.8.4"
 bs4 = "^0.0.1"
 streamlit = "^1.25.0"
 google-api-python-client = "^2.96.0"
+pytest = "^7.4.0"
 
 
 [build-system]

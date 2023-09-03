@@ -28,7 +28,7 @@ class DuckDuckGoSearch(WebSearcherInterface):
         for j in results:
             search_results.append(j["href"])
             total_added += 1
-            if total_added >= self._num_results:
+            if total_added >= self._num_results * 2:
                 break
 
         return search_results

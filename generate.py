@@ -2,6 +2,7 @@ import json
 from typing import Dict, List
 
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
+from blog_writer.agents.suggestion import SuggestionAgent
 from blog_writer.agents.topics import TopicAgent, TopicsAgentOutput
 from blog_writer.agents.write_critique import WriteCritiqueAgent, WriteCritiqueAgentOutput
 from blog_writer.agents.writer import WriterAgent
@@ -14,11 +15,14 @@ from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import read_file
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.web_scraper import WebScraper
+from final_blog import fix_format
 
 TOPIC_FILE = "topics.json"
 SEARCH_FILE = "search.json"
 OUTLINE_FILE = "outline.json"
 BLOG_FILE = "blog.md"
+FINAL_BLOG_FILE = "final_blog.md"
+SUGGESTION = "suggestion.json"
 
 
 def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int = 5,
@@ -54,6 +58,8 @@ def search_from_topics(subject: str, topics: dict, config, storage, debug: bool 
 
     for _, topic in enumerate(topics):
         contents = web_scarper.scrape(f"{topic}", topics[topic])
+        if len(contents) == 0:
+            continue
         outline[topic] = contents
     result.result = outline
     storage.write(SEARCH_FILE, json.dumps(result, cls=ObjectEncoder))
@@ -92,40 +98,6 @@ def critique(subject: str, outline: str, completed_part: str, current_part: str,
     return output
 
 
-def main():
-    config = load_config()
-
-    subject = """
-    How to Control the Creativity and Diversity of Your GPT Model Outputs with Temperature and Top-k 
-    """
-    load_from = "230820130938_how_to_control_the_c"
-    storage = Storage(subject, load_from_workspace=load_from)
-
-    output = generate_topics(subject, storage, 5, 5, False)
-    continue_ok = input("Search: Press Enter to continue...")
-    if continue_ok != 'y':
-        logger.info(storage.workspace)
-        return
-
-    references = search_from_topics(subject, output.topics, config, storage, False)
-    outline_output = write_outline(subject, references, storage, False)
-
-    continue_ok = input("Outlint: Press Enter to continue...")
-    if continue_ok != 'y':
-        logger.info(storage.workspace)
-        return
-
-    outline_blog = json.dumps(outline_output.outline)
-    blog_content = write_blog(outline_blog, outline_output, references, storage, subject)
-
-    critiq = critique(subject, outline_blog, "", blog_content, SearchResult(), False)
-    if critiq.success:
-        logger.info("Blog is ready to publish")
-    else:
-        logger.info("Blog is not ready to publish")
-        logger.info(critiq.critique)
-
-
 def write_blog(outline_blog, outline_output, references: SearchResult, storage, subject,
                use_critique: bool = False) -> str:
     blog_content = storage.read(BLOG_FILE)
@@ -137,25 +109,25 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
     cur_blog = ""
     i = 1
 
-    max_retry = 3
+    max_retry = 1
     for o in outline_output.outline:
         i = 0
         suggestions = ""
         last_content = ""
-        while i < max_retry:
+        while i <= max_retry:
             out_content = writer_agent.run(subject, references, cur_blog,
                                            f"Header: {o['header']} \n Your content must be written about {o['short_description']}",
                                            suggestions)
             last_content = out_content.content
-            if not use_critique:
+            i += 1
+
+            if not use_critique or i == max_retry:
                 break
 
             critiq = critique(subject, outline_blog, cur_blog, out_content.content, references)
-            if critiq.success:
-                break
-
+            # if critiq.success:
+            #     break
             suggestions = critiq.critique
-            i += 1
 
         cur_blog += last_content + "\n\n"
         i += 1
@@ -164,5 +136,56 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
     return cur_blog
 
 
+def generate(subject, load_from):
+    config = load_config()
+    subject = subject.strip()
+    storage = Storage(subject, load_from_workspace=load_from)
+
+    output = generate_topics(subject, storage, 5, 5, False)
+    continue_ok = input("Search: Press Enter to continue...")
+    if continue_ok != 'y':
+        logger.info(storage.workspace)
+        return
+
+    references = search_from_topics(subject, output.topics, config, storage, False)
+    outline_output = write_outline(subject, references, storage, False)
+
+    continue_ok = input("Outline: Press Enter to continue...")
+    if continue_ok != 'y':
+        logger.info(storage.workspace)
+        return
+
+    outline_blog = json.dumps(outline_output.outline)
+    blog_content = write_blog(outline_blog, outline_output, references, storage, subject)
+
+    if storage.read(SUGGESTION) != "":
+        logger.info("Suggestion already generated")
+    else:
+        write_config = new_model_config("gpt4-32k")
+        suggest_agent = SuggestionAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
+                                        temperature=0.1)
+        output = suggest_agent.run(subject, blog_content)
+        logger.info(output.content)
+        storage.write(SUGGESTION, output.content)
+
+    storage.write(FINAL_BLOG_FILE, fix_format(storage))
+
+    # critiq = critique(subject, outline_blog, "", blog_content, SearchResult(), False)
+    # if critiq.success:
+    #     logger.info("Blog is ready to publish")
+    # else:
+    #     logger.info("Blog is not ready to publish")
+    #     logger.info(critiq.critique)
+
+
 if __name__ == "__main__":
-    main()
+    subject = """
+    Write a blog about topic protect Python code from being read by users by using cthon. 
+    The blog must cover the following subtopics:
+    - What is cthon?
+    - How to migrate a existing python project to use cthon?
+    - What are the benefits of using cthon?
+    - What are the drawbacks of using cthon?
+    """
+    load_from = "230901134239_write_a_blog_about_t"
+    generate(subject, load_from)
