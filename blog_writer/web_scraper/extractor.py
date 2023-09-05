@@ -14,25 +14,39 @@ from ..prompts import load_agent_prompt
 from ..utils.file import read_file
 from ..utils.stream_console import StreamConsoleCallbackManager
 
+from langchain.document_loaders import AsyncHtmlLoader
+from langchain.document_transformers import Html2TextTransformer
+
 
 class WebExtractor(WebExtractorInterface):
     def __init__(self, extractor_config: WebExtractorConfig, model_config: ModelConfig):
         self._extractor_config = extractor_config
         self._model_config = model_config
 
+    # def get_content(self, url: str) -> Optional[str]:
+    #     page_source = requests.get(url=url).content
+    #     soup = BeautifulSoup(page_source, "html.parser")
+    #
+    #     for script in soup(["script", "style"]):
+    #         script.extract()
+    #
+    #     text = self._get_text(soup=soup)
+    #
+    #     lines = (line.strip() for line in text.splitlines())
+    #     chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+    #     text = "\n".join(chunk for chunk in chunks if chunk)
+    #     return text
+
+    def get_content(self, url) -> Optional[str]:
+        urls = [url]
+        loader = AsyncHtmlLoader(urls)
+        docs = loader.load()
+        html2text = Html2TextTransformer()
+        docs_transformed = html2text.transform_documents(docs)
+        return docs_transformed[0].page_content
+
     def extract(self, url: str, query: str) -> Optional[Document]:
-        page_source = requests.get(url=url).content
-        soup = BeautifulSoup(page_source, "html.parser")
-
-        for script in soup(["script", "style"]):
-            script.extract()
-
-        text = self._get_text(soup=soup)
-
-        lines = (line.strip() for line in text.splitlines())
-        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-        text = "\n".join(chunk for chunk in chunks if chunk)
-
+        text = self.get_content(url=url)
         doc = self._summarize_text(text=text, question=query)
         if doc is None:
             return None

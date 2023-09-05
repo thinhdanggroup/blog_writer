@@ -180,12 +180,13 @@ def generate(subject, load_from):
 
 if __name__ == "__main__":
     subject = """
-    Write a blog about topic protect Python code from being read by users by using cthon. 
-    The blog must cover the following subtopics:
-    - What is cthon?
-    - How to migrate a existing python project to use cthon?
-    - What are the benefits of using cthon?
-    - What are the drawbacks of using cthon?
+    Write a blog about topic mojo programming language
+    The blog MUST:
+    - Explain what is mojo programming language
+    - Explain why mojo programming language is useful
+    - Explain how to use mojo programming language
+    - Explain how to install mojo programming language
+    - Explain how to use mojo programming language to solve a problem in real life
     """
-    load_from = "230901134239_write_a_blog_about_t"
+    load_from = ""
     generate(subject, load_from)
