@@ -1,6 +1,7 @@
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
 from blog_writer.config.config import load_config
+from blog_writer.config.definitions import MODEL_NAME
 from blog_writer.utils.llm import create_chat_model
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.web_scraper.extractor import WebExtractor
@@ -19,7 +20,7 @@ def main():
     print("Start chatbot...\n")
     cfg = load_config()
     web_extractor = WebExtractor(cfg.web_extractor, cfg.model_config)
-    cfg.model_config.deployment = "gpt4-32k"
+    cfg.model_config.deployment = MODEL_NAME
     llm = create_chat_model(
         temperature=0.1,
         model_config=cfg.model_config,

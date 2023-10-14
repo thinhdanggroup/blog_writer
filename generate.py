@@ -7,7 +7,7 @@ from blog_writer.agents.topics import TopicAgent, TopicsAgentOutput
 from blog_writer.agents.write_critique import WriteCritiqueAgent, WriteCritiqueAgentOutput
 from blog_writer.agents.writer import WriterAgent
 from blog_writer.config.config import load_config, new_model_config
-from blog_writer.config.definitions import ROOT_DIR
+from blog_writer.config.definitions import ROOT_DIR, MODEL_NAME
 from blog_writer.config.logger import logger
 from blog_writer.model.search import SearchResult
 from blog_writer.store.storage import Storage
@@ -24,7 +24,6 @@ BLOG_FILE = "blog.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 
-
 def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int = 5,
                     debug: bool = False) -> TopicsAgentOutput:
     if debug:
@@ -36,7 +35,7 @@ def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int =
         return out
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config("gpt4-8k")
+    model_config = new_model_config(MODEL_NAME)
     topic_agent = TopicAgent(model_config=model_config, stream_callback_manager=stream_callback, temperature=0.5)
 
     output = topic_agent.run(topic, no_topics=no_topics, no_subtopics=no_subtopics)
@@ -76,7 +75,7 @@ def write_outline(subject: str, references: SearchResult, storage,
         return OutlineAgentOutput(answer=data)
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config("gpt4-32k")
+    model_config = new_model_config(MODEL_NAME)
     writer_agent = OutlineAgent(model_config=model_config, stream_callback_manager=stream_callback, temperature=0.5)
 
     output = writer_agent.run(subject, references)
@@ -90,7 +89,7 @@ def critique(subject: str, outline: str, completed_part: str, current_part: str,
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config("gpt4-32k")
+    model_config = new_model_config(MODEL_NAME)
     writer_agent = WriteCritiqueAgent(model_config=model_config, stream_callback_manager=stream_callback,
                                       temperature=0.2)
 
@@ -103,7 +102,7 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
     blog_content = storage.read(BLOG_FILE)
     if blog_content != "":
         return blog_content
-    write_config = new_model_config("gpt4-32k")
+    write_config = new_model_config(MODEL_NAME)
     writer_agent = WriterAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
                                temperature=0.5)
     cur_blog = ""
@@ -141,7 +140,7 @@ def generate(subject, load_from):
     subject = subject.strip()
     storage = Storage(subject, load_from_workspace=load_from)
 
-    output = generate_topics(subject, storage, 5, 5, False)
+    output = generate_topics(subject, storage, 5, 10, False)
     continue_ok = input("Search: Press Enter to continue...")
     if continue_ok != 'y':
         logger.info(storage.workspace)
@@ -161,7 +160,7 @@ def generate(subject, load_from):
     if storage.read(SUGGESTION) != "":
         logger.info("Suggestion already generated")
     else:
-        write_config = new_model_config("gpt4-32k")
+        write_config = new_model_config(MODEL_NAME)
         suggest_agent = SuggestionAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
                                         temperature=0.1)
         output = suggest_agent.run(subject, blog_content)
@@ -180,13 +179,16 @@ def generate(subject, load_from):
 
 if __name__ == "__main__":
     subject = """
-    Write a blog about topic mojo programming language
-    The blog MUST:
-    - Explain what is mojo programming language
-    - Explain why mojo programming language is useful
-    - Explain how to use mojo programming language
-    - Explain how to install mojo programming language
-    - Explain how to use mojo programming language to solve a problem in real life
+    Write a blog about 
+    \"\"\"
+    A New Way to Run Python in 3.12 subinterpreters
+    - What is subinterpreters?
+    - Why do we need subinterpreters?
+    - How to use subinterpreters?
+    - How to use subinterpreters in real world?
+    - Example code of using subinterpreters  
+    - Future of subinterpreters
+    \"\"\"
     """
     load_from = ""
     generate(subject, load_from)

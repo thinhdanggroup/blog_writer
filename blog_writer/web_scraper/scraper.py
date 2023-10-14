@@ -56,11 +56,11 @@ class WebScraper(WebScraperInterface):
             except KeyboardInterrupt:
                 logger.warning("Keyboard interrupt")
                 exit(0)
-            except requests.exceptions.ConnectionError:
-                logger.warning("Connection error when extracting from %s", href)
+            except requests.exceptions.ConnectionError as e:
+                logger.warning("Connection error when extracting from %s error %s", href, e)
             except openai.error.InvalidRequestError as e:
-                logger.error("Error when extracting from %s", href)
+                logger.error("Error when extracting from %s error %s", href, e)
             except Exception as e:
-                logger.exception("Error when extracting from %s %s", href, e)
+                logger.exception("Error when extracting from %s error %s", href, e)
 
         return ref_sources

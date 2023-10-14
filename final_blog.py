@@ -47,11 +47,16 @@ def fix_format(storage):
     final_content += "\n\n## References\n\n"
 
     sorted_matches = sorted(list_references, key=lambda x: int(x[0]))
+    update_refs = []
     for v in sorted_matches:
+        if v in update_refs:
+            continue
         final_content += f"- [{v[1]}]({v[2]}) \n"
+        update_refs.append(v[2])
 
     print(final_content)
     return final_content
+
 
 def fix_file(workspace):
     storage = Storage("", load_from_workspace=workspace)
