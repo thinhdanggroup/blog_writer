@@ -3,7 +3,9 @@ from typing import Optional
 
 import requests
 from bs4 import BeautifulSoup
-from langchain.schema import HumanMessage, SystemMessage
+from langchain.document_loaders import AsyncHtmlLoader
+from langchain.document_transformers import Html2TextTransformer
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
 from blog_writer.utils.llm import create_chat_model
@@ -13,9 +15,8 @@ from ..model.search import Document, Answer
 from ..prompts import load_agent_prompt
 from ..utils.file import read_file
 from ..utils.stream_console import StreamConsoleCallbackManager
-
-from langchain.document_loaders import AsyncHtmlLoader
-from langchain.document_transformers import Html2TextTransformer
+from ..utils.stream_token_handler import StreamTokenHandler
+from ..utils.text import extract_json_from_markdown, load_json
 
 
 class WebExtractor(WebExtractorInterface):
@@ -74,8 +75,10 @@ class WebExtractor(WebExtractorInterface):
             stream_callback_manager=StreamConsoleCallbackManager()
         )
 
-        data = model([self._get_system_prompt(), self._create_message(text=text, question=question)]).content
-        result = json.loads(data)
+        messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
+
+        data = StreamTokenHandler(model)(messages)
+        result = load_json(data)
         text_result = Document()
         for question in result.get("questions", []):
             if not question.get("has_answer", False):

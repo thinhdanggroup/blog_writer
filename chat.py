@@ -1,4 +1,4 @@
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain_core.schema import SystemMessage, HumanMessage, AIMessage
 
 from blog_writer.config.config import load_config
 from blog_writer.config.definitions import MODEL_NAME

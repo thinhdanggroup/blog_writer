@@ -4,7 +4,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from blog_writer.config.definitions import ROOT_DIR
+from blog_writer.config.definitions import ROOT_DIR, MODEL_GPT_35
 
 
 def get_bool(raw: Any, default: bool = False) -> bool:
@@ -13,10 +13,20 @@ def get_bool(raw: Any, default: bool = False) -> bool:
 
 class ModelConfig:
     def __init__(self):
-        self.deployment = os.getenv("MODEL_CONFIG_DEPLOYMENT")
+        self.llm_type = os.getenv("LLM_TYPE", "azure")
+        self.deployment = os.getenv("MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
         self.version = os.getenv("MODEL_CONFIG_VERSION")
         self.base = os.getenv("MODEL_CONFIG_BASE")
-        self.key = os.getenv("MODEL_CONFIG_KEY")
+        self._key1 = os.getenv("MODEL_CONFIG_KEY")
+        self._key2 = os.getenv("MODEL_CONFIG_KEY2", self._key1)
+        self._keys = [self._key1, self._key2]
+        self._current_index = 0
+
+    @property
+    def key(self):
+        current_key = self._keys[self._current_index]
+        self._current_index = (self._current_index + 1) % len(self._keys)
+        return current_key
 
 
 def new_model_config(deployment) -> ModelConfig:

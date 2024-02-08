@@ -1,15 +1,13 @@
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 import openai
 import requests
 
-from blog_writer.config.config import ModelConfig, WebExtractorConfig, WebSearchConfig
-
+from blog_writer.config.config import ModelConfig, WebExtractorConfig, WebSearchConfig, load_config
 from blog_writer.config.logger import logger
-from .base import WebScraperInterface
-from .factory import create_web_extractor, create_web_search
-from ..model.search import Document
-from ..utils.file import wrap_text_with_tag
+from blog_writer.web_scraper.base import WebScraperInterface
+from blog_writer.web_scraper.factory import create_web_extractor, create_web_search
+from blog_writer.model.search import Document
 
 
 class WebScraper(WebScraperInterface):
@@ -58,9 +56,13 @@ class WebScraper(WebScraperInterface):
                 exit(0)
             except requests.exceptions.ConnectionError as e:
                 logger.warning("Connection error when extracting from %s error %s", href, e)
-            except openai.error.InvalidRequestError as e:
-                logger.error("Error when extracting from %s error %s", href, e)
             except Exception as e:
                 logger.exception("Error when extracting from %s error %s", href, e)
 
         return ref_sources
+
+if __name__ == "__main__":
+    config = load_config()
+
+    wc = WebScraper(config.model_config, config.web_search, config.web_extractor)
+    print(wc.scrape("chain of thought llm", ["how to use chain of thought"]))

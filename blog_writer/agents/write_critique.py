@@ -1,7 +1,7 @@
 import json
 from typing import List, Tuple, Dict
 
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from blog_writer.agents.base import AgentInterface
 from blog_writer.config.logger import logger
@@ -9,11 +9,13 @@ from blog_writer.model.search import SearchResult
 from blog_writer.prompts import load_agent_prompt
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import wrap_text_with_tag
+from blog_writer.utils.stream_token_handler import StreamTokenHandler
+from blog_writer.utils.text import extract_json_from_markdown, load_json
 
 
 class WriteCritiqueAgentOutput:
     def __init__(self, answer: str = ""):
-        data = json.loads(answer)
+        data = load_json(answer)
         self.success = data.get("success", True)
         self.critique = data.get("critique", "no critique")
         self.reasoning = data.get("reasoning", "no reasoning")
@@ -69,5 +71,6 @@ class WriteCritiqueAgent(AgentInterface):
             human_message,
         ]
 
-        ai_message = f"{self.llm(messages).content}\n"
+        content = StreamTokenHandler(self.llm)(messages)
+        ai_message = f"{content}\n"
         return WriteCritiqueAgentOutput(ai_message)

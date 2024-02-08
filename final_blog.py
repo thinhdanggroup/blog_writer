@@ -2,6 +2,7 @@ import json
 import re
 
 from blog_writer.store.storage import Storage
+from blog_writer.utils.text import load_json
 
 
 def remove_references(text):
@@ -26,7 +27,7 @@ def extract_reference_details(text):
 def fix_format(storage):
     blog_content = storage.read("blog.md")
     o = storage.read("outline.json")
-    outline = json.loads(o)
+    outline = load_json(o)
 
     final_content = ""
 

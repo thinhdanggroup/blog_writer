@@ -2,8 +2,9 @@ import sys
 from typing import Any, Optional
 from uuid import UUID
 
-from langchain.callbacks.base import BaseCallbackHandler
-from langchain.schema import LLMResult
+from langchain_core.callbacks import BaseCallbackHandler
+from langchain_core.outputs import LLMResult
+from tenacity import RetryCallState
 
 
 class StreamConsoleCallbackManager(BaseCallbackHandler):
@@ -24,3 +25,15 @@ class StreamConsoleCallbackManager(BaseCallbackHandler):
         sys.stdout.write("\n\n")
         sys.stdout.write("========================================\n")
 
+    def on_retry(
+            self,
+            retry_state: RetryCallState,
+            *,
+            run_id: UUID,
+            **kwargs: Any,
+    ) -> None:
+        sys.stdout.write("\n\n")
+        sys.stdout.write("========================================\n")
+        sys.stdout.write("Retry: {}\n".format(retry_state))
+        sys.stdout.write("========================================\n")
+        sys.stdout.write("\n\n")

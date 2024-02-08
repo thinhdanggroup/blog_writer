@@ -1,12 +1,14 @@
 import json
 from typing import List, Tuple
 
-from langchain.prompts import SystemMessagePromptTemplate
-from langchain.schema import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
+from langchain_core.prompts import SystemMessagePromptTemplate
 
 from blog_writer.agents.base import AgentInterface
 from blog_writer.config.logger import logger
 from blog_writer.prompts import load_agent_prompt
+from blog_writer.utils.stream_token_handler import StreamTokenHandler
+from blog_writer.utils.text import extract_json_from_markdown, load_json
 
 
 class TopicsAgentOutput:
@@ -17,7 +19,8 @@ class TopicsAgentOutput:
         self.topics = self._parse_answer(answer)
 
     def _parse_answer(self, answer: str) -> dict:
-        data = json.loads(answer)
+        answer = extract_json_from_markdown(answer)
+        data = load_json(answer)
 
         topics = {}
         for topic in data['topics']:
@@ -68,5 +71,6 @@ class TopicAgent(AgentInterface):
             human_message,
         ]
 
-        ai_message = f"{self.llm(messages).content}\n"
+        content = StreamTokenHandler(self.llm)(messages)
+        ai_message = f"{content}\n"
         return TopicsAgentOutput(ai_message)

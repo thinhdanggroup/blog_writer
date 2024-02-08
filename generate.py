@@ -14,6 +14,7 @@ from blog_writer.store.storage import Storage
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import read_file
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
+from blog_writer.utils.text import load_json
 from blog_writer.web_scraper import WebScraper
 from final_blog import fix_format
 
@@ -31,7 +32,7 @@ def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int =
 
     if storage.read(TOPIC_FILE) != "":
         out = TopicsAgentOutput()
-        out.topics = json.loads(storage.read("topics.json"))
+        out.topics = load_json(storage.read("topics.json"))
         return out
 
     stream_callback = StreamConsoleCallbackManager()
@@ -135,24 +136,26 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
     return cur_blog
 
 
-def generate(subject, load_from):
+def generate(subject, load_from, skip_all: bool = True):
     config = load_config()
     subject = subject.strip()
     storage = Storage(subject, load_from_workspace=load_from)
 
     output = generate_topics(subject, storage, 5, 10, False)
-    continue_ok = input("Search: Press Enter to continue...")
-    if continue_ok != 'y':
-        logger.info(storage.workspace)
-        return
+    if not skip_all:
+        continue_ok = input("Search: Press Enter to continue...")
+        if continue_ok != 'y':
+            logger.info(storage.workspace)
+            return
 
     references = search_from_topics(subject, output.topics, config, storage, False)
     outline_output = write_outline(subject, references, storage, False)
 
-    continue_ok = input("Outline: Press Enter to continue...")
-    if continue_ok != 'y':
-        logger.info(storage.workspace)
-        return
+    if not skip_all:
+        continue_ok = input("Outline: Press Enter to continue...")
+        if continue_ok != 'y':
+            logger.info(storage.workspace)
+            return
 
     outline_blog = json.dumps(outline_output.outline)
     blog_content = write_blog(outline_blog, outline_output, references, storage, subject)
@@ -181,14 +184,15 @@ if __name__ == "__main__":
     subject = """
     Write a blog about 
     \"\"\"
-    A New Way to Run Python in 3.12 subinterpreters
-    - What is subinterpreters?
-    - Why do we need subinterpreters?
-    - How to use subinterpreters?
-    - How to use subinterpreters in real world?
-    - Example code of using subinterpreters  
-    - Future of subinterpreters
+Write a blog about gemini model of google
+
+The blog must cover:
+1. What is gemini model
+2. How does gemini model work 
+3. How to use gemini model
+4. Compare gemini model with other models OpenAI, LLama
+5. A sample code to use gemini model
     \"\"\"
     """
-    load_from = ""
+    load_from = "240208193833_write_a_blog_about_-"
     generate(subject, load_from)

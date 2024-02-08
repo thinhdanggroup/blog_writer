@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Optional
 
-from langchain.callbacks.base import BaseCallbackHandler
+from langchain_core.callbacks.base import BaseCallbackHandler
 
 from blog_writer.config.config import ModelConfig
 from blog_writer.utils.llm import create_chat_model
