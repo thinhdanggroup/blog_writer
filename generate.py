@@ -25,6 +25,7 @@ BLOG_FILE = "blog.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 
+
 def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int = 5,
                     debug: bool = False) -> TopicsAgentOutput:
     if debug:
@@ -164,7 +165,8 @@ def generate(subject, load_from, skip_all: bool = True):
         logger.info("Suggestion already generated")
     else:
         write_config = new_model_config(MODEL_NAME)
-        suggest_agent = SuggestionAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
+        suggest_agent = SuggestionAgent(model_config=write_config,
+                                        stream_callback_manager=StreamConsoleCallbackManager(),
                                         temperature=0.1)
         output = suggest_agent.run(subject, blog_content)
         logger.info(output.content)
@@ -181,29 +183,7 @@ def generate(subject, load_from, skip_all: bool = True):
 
 
 if __name__ == "__main__":
-    subject = """
-    Write a blog about 
-    \"\"\"
-The blog is for a beginner-friendly blog on "Good Coding Principles to Improve Code Quality in Practice," consider structuring your content as follows:
-
-1. Introduction to Code Quality
-   - Briefly explain the concept of code quality and its importance for a developer.
-2. The Importance of Coding Standards
-   - Explain the benefits of coding standards, including consistency, readability, and maintainability
-3. Following Coding Conventions
-   - Describe what coding conventions are and how they contribute to code quality
-   - Give examples of common coding conventions for popular languages like Python, Java, C#, and JavaScript
-4. Measuring Function Size
-   - Discuss the concept of function length and why it's beneficial to keep functions small and focused
-5. Writing Clear & Concise Comments
-   - Advise on the importance of commenting code properly, providing clear explanations without cluttering the code
-6. Using Smart Code Snippets
-   - Suggest the use of smart code snippets to speed up development and reduce errors
-7. Leveraging Highly-Supported Libraries
-   - Encourage the use of widely supported libraries to avoid reinventing the wheel and to benefit from community support
-8. Static Code Testing Practices
-   - Introduce the concept of static code testing and its benefits, mentioning tools that can assist in this process
-    \"\"\"
-    """
+    problem = read_file("input.txt")
+    subject = f'Write a blog about\n\"\"\"{problem}\n\"\"\"'
     load_from = ""
     generate(subject, load_from)

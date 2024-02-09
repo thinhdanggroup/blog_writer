@@ -159,3 +159,4 @@ cython_debug/
 #.idea/
 .working_space
 .env
+input.txt
