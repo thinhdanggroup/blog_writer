@@ -184,15 +184,26 @@ if __name__ == "__main__":
     subject = """
     Write a blog about 
     \"\"\"
-Write a blog about gemini model of google
+The blog is for a beginner-friendly blog on "Good Coding Principles to Improve Code Quality in Practice," consider structuring your content as follows:
 
-The blog must cover:
-1. What is gemini model
-2. How does gemini model work 
-3. How to use gemini model
-4. Compare gemini model with other models OpenAI, LLama
-5. A sample code to use gemini model
+1. Introduction to Code Quality
+   - Briefly explain the concept of code quality and its importance for a developer.
+2. The Importance of Coding Standards
+   - Explain the benefits of coding standards, including consistency, readability, and maintainability
+3. Following Coding Conventions
+   - Describe what coding conventions are and how they contribute to code quality
+   - Give examples of common coding conventions for popular languages like Python, Java, C#, and JavaScript
+4. Measuring Function Size
+   - Discuss the concept of function length and why it's beneficial to keep functions small and focused
+5. Writing Clear & Concise Comments
+   - Advise on the importance of commenting code properly, providing clear explanations without cluttering the code
+6. Using Smart Code Snippets
+   - Suggest the use of smart code snippets to speed up development and reduce errors
+7. Leveraging Highly-Supported Libraries
+   - Encourage the use of widely supported libraries to avoid reinventing the wheel and to benefit from community support
+8. Static Code Testing Practices
+   - Introduce the concept of static code testing and its benefits, mentioning tools that can assist in this process
     \"\"\"
     """
-    load_from = "240208193833_write_a_blog_about_-"
+    load_from = ""
     generate(subject, load_from)
