@@ -1,5 +1,4 @@
 import json
-from typing import Dict, List
 
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
 from blog_writer.agents.suggestion import SuggestionAgent
@@ -16,7 +15,7 @@ from blog_writer.utils.file import read_file
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.utils.text import load_json
 from blog_writer.web_scraper import WebScraper
-from final_blog import fix_format
+from blog_writer.core.final_blog import fix_format
 
 TOPIC_FILE = "topics.json"
 SEARCH_FILE = "search.json"
@@ -183,7 +182,7 @@ def generate(subject, load_from, skip_all: bool = True):
 
 
 if __name__ == "__main__":
-    problem = read_file("input.txt")
+    problem = read_file("../../input.txt")
     subject = f'Write a blog about\n\"\"\"{problem}\n\"\"\"'
     load_from = ""
     generate(subject, load_from)
