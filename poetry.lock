@@ -223,6 +223,42 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "bing-chat"
+version = "1.9.5"
+description = "Bing-Chat-API"
+optional = false
+python-versions = ">=3.6,<4.0"
+files = [
+    {file = "bing_chat-1.9.5-py3-none-any.whl", hash = "sha256:ac8c456383c4c8de18b54a47640bbcd87ff7e79db4cf39c6053f8ec1bca5aba4"},
+    {file = "bing_chat-1.9.5.tar.gz", hash = "sha256:f4b59ab13d395ce41851b84c834fb50218d8e49371417cfc0462e2894292f346"},
+]
+
+[package.dependencies]
+aiohttp = "*"
+BingImageCreator = "*"
+certifi = "*"
+httpx = "*"
+prompt_toolkit = "*"
+requests = "*"
+rich = "*"
+
+[[package]]
+name = "bingimagecreator"
+version = "0.5.0"
+description = "High quality image generation by Microsoft. Reverse engineered API."
+optional = false
+python-versions = "*"
+files = [
+    {file = "BingImageCreator-0.5.0-py3-none-any.whl", hash = "sha256:9822e07ec32f79a88d4a0db59e85dfed46477cfe706d534c2bd813f1c92120e0"},
+    {file = "BingImageCreator-0.5.0.tar.gz", hash = "sha256:e15798b7c0394145b334d0b3bef4aad187d5e7e0c3f7b6d949e413fe11b5ea47"},
+]
+
+[package.dependencies]
+httpx = "*"
+regex = "*"
+requests = "*"
+
+[[package]]
 name = "blinker"
 version = "1.6.2"
 description = "Fast, simple object-to-object and broadcast signaling"
@@ -2022,6 +2058,20 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "prompt-toolkit"
+version = "3.0.43"
+description = "Library for building powerful interactive command lines in Python"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "prompt_toolkit-3.0.43-py3-none-any.whl", hash = "sha256:a11a29cb3bf0a28a387fe5122cdb649816a957cd9261dcedf8c9f1fef33eacf6"},
+    {file = "prompt_toolkit-3.0.43.tar.gz", hash = "sha256:3527b7af26106cbc65a040bcc84839a3566ec1b051bb0bfe953631e704b0ff7d"},
+]
+
+[package.dependencies]
+wcwidth = "*"
+
+[[package]]
 name = "proto-plus"
 version = "1.23.0"
 description = "Beautiful, Pythonic protocol buffers."
@@ -3074,6 +3124,17 @@ files = [
 watchmedo = ["PyYAML (>=3.10)"]
 
 [[package]]
+name = "wcwidth"
+version = "0.2.13"
+description = "Measures the displayed width of unicode strings in a terminal"
+optional = false
+python-versions = "*"
+files = [
+    {file = "wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859"},
+    {file = "wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5"},
+]
+
+[[package]]
 name = "werkzeug"
 version = "3.0.1"
 description = "The comprehensive WSGI web application library."
@@ -3195,4 +3256,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ece96a714a61ea678ce599b18db76de1bf1142961fe4c4777f4c37f0d0bf8873"
+content-hash = "ac01519a241fe08cf230f46f348c3603466a4100bfaa166bba6d498c36b563dc"

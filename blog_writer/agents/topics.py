@@ -37,12 +37,9 @@ class TopicAgent(AgentInterface):
             system_template
         )
 
-        output_format = load_agent_prompt("output_topics")
-
         system_message = system_message_prompt.format(
             no_topics=no_topics,
             no_subtopics=no_subtopics,
-            output=output_format,
         )
         return system_message
 

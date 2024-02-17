@@ -1,9 +1,13 @@
 import json
 
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
+from blog_writer.agents.reviewer import ReviewAgent
 from blog_writer.agents.suggestion import SuggestionAgent
 from blog_writer.agents.topics import TopicAgent, TopicsAgentOutput
-from blog_writer.agents.write_critique import WriteCritiqueAgent, WriteCritiqueAgentOutput
+from blog_writer.agents.write_critique import (
+    WriteCritiqueAgent,
+    WriteCritiqueAgentOutput,
+)
 from blog_writer.agents.writer import WriterAgent
 from blog_writer.config.config import load_config, new_model_config
 from blog_writer.config.definitions import ROOT_DIR, MODEL_NAME
@@ -21,14 +25,18 @@ TOPIC_FILE = "topics.json"
 SEARCH_FILE = "search.json"
 OUTLINE_FILE = "outline.json"
 BLOG_FILE = "blog.md"
+REVIEW_FILE = "review.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 
 
-def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int = 5,
-                    debug: bool = False) -> TopicsAgentOutput:
+def generate_topics(
+    topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
+) -> TopicsAgentOutput:
     if debug:
-        return TopicsAgentOutput(answer=read_file(f"{ROOT_DIR}/data/example_topics.json"))
+        return TopicsAgentOutput(
+            answer=read_file(f"{ROOT_DIR}/data/example_topics.json")
+        )
 
     if storage.read(TOPIC_FILE) != "":
         out = TopicsAgentOutput()
@@ -37,15 +45,23 @@ def generate_topics(topic: str, storage, no_topics: int = 5, no_subtopics: int =
 
     stream_callback = StreamConsoleCallbackManager()
     model_config = new_model_config(MODEL_NAME)
-    topic_agent = TopicAgent(model_config=model_config, stream_callback_manager=stream_callback, temperature=0.5)
+    topic_agent = TopicAgent(
+        model_config=model_config,
+        stream_callback_manager=stream_callback,
+        temperature=0.5,
+    )
 
     output = topic_agent.run(topic, no_topics=no_topics, no_subtopics=no_subtopics)
     storage.write(TOPIC_FILE, json.dumps(output.topics))
     return output
 
 
-def search_from_topics(subject: str, topics: dict, config, storage, debug: bool = False) -> SearchResult:
-    web_scarper = WebScraper(config.model_config, config.web_search, config.web_extractor)
+def search_from_topics(
+    subject: str, topics: dict, config, storage, debug: bool = False
+) -> SearchResult:
+    web_scarper = WebScraper(
+        config.model_config, config.web_search, config.web_extractor
+    )
 
     if debug:
         return json.loads(read_file(f"{ROOT_DIR}/data/example_search.json"))
@@ -66,8 +82,9 @@ def search_from_topics(subject: str, topics: dict, config, storage, debug: bool 
     return result
 
 
-def write_outline(subject: str, references: SearchResult, storage,
-                  debug: bool = False) -> OutlineAgentOutput:
+def write_outline(
+    subject: str, references: SearchResult, storage, debug: bool = False
+) -> OutlineAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
@@ -77,36 +94,67 @@ def write_outline(subject: str, references: SearchResult, storage,
 
     stream_callback = StreamConsoleCallbackManager()
     model_config = new_model_config(MODEL_NAME)
-    writer_agent = OutlineAgent(model_config=model_config, stream_callback_manager=stream_callback, temperature=0.5)
+    writer_agent = OutlineAgent(
+        model_config=model_config,
+        stream_callback_manager=stream_callback,
+        temperature=0.5,
+    )
 
     output = writer_agent.run(subject, references)
     storage.write(OUTLINE_FILE, output.raw_response)
     return output
 
 
-def critique(subject: str, outline: str, completed_part: str, current_part: str, references: SearchResult,
-             debug: bool = False) -> WriteCritiqueAgentOutput:
+def critique(
+    subject: str,
+    outline: str,
+    completed_part: str,
+    current_part: str,
+    references: SearchResult,
+    debug: bool = False,
+) -> WriteCritiqueAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
     stream_callback = StreamConsoleCallbackManager()
     model_config = new_model_config(MODEL_NAME)
-    writer_agent = WriteCritiqueAgent(model_config=model_config, stream_callback_manager=stream_callback,
-                                      temperature=0.2)
+    writer_agent = WriteCritiqueAgent(
+        model_config=model_config,
+        stream_callback_manager=stream_callback,
+        temperature=0.2,
+    )
 
-    output = writer_agent.run(subject, outline, references, completed_part, current_part)
+    output = writer_agent.run(
+        subject, outline, references, completed_part, current_part
+    )
     return output
 
 
-def write_blog(outline_blog, outline_output, references: SearchResult, storage, subject,
-               use_critique: bool = False) -> str:
+def write_blog(
+    outline_blog,
+    outline_output,
+    references: SearchResult,
+    storage,
+    subject,
+    use_critique: bool = False,
+) -> str:
     blog_content = storage.read(BLOG_FILE)
     if blog_content != "":
         return blog_content
     write_config = new_model_config(MODEL_NAME)
-    writer_agent = WriterAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
-                               temperature=0.5)
+    writer_agent = WriterAgent(
+        model_config=write_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
+    review_agent = ReviewAgent(
+        model_config=write_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
+
     cur_blog = ""
+    review_blog = ""
     i = 1
 
     max_retry = 1
@@ -115,16 +163,30 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
         suggestions = ""
         last_content = ""
         while i <= max_retry:
-            out_content = writer_agent.run(subject, references, cur_blog,
-                                           f"Header: {o['header']} \n Your content must be written about {o['short_description']}",
-                                           suggestions)
+            cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
+            out_content = writer_agent.run(
+                subject, references, cur_blog, cur_section, suggestions
+            )
             last_content = out_content.content
             i += 1
+
+            review_output = review_agent.run(
+                section=cur_section, section_content=last_content
+            )
+            review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
+
+            # run with suggestions
+            out_content = writer_agent.run(
+                subject, references, cur_blog, cur_section, review_output.review_msg
+            )
+            last_content = out_content.content
 
             if not use_critique or i == max_retry:
                 break
 
-            critiq = critique(subject, outline_blog, cur_blog, out_content.content, references)
+            critiq = critique(
+                subject, outline_blog, cur_blog, out_content.content, references
+            )
             # if critiq.success:
             #     break
             suggestions = critiq.critique
@@ -133,6 +195,7 @@ def write_blog(outline_blog, outline_output, references: SearchResult, storage, 
         i += 1
 
     storage.write(BLOG_FILE, cur_blog)
+    storage.write(REVIEW_FILE, review_blog)
     return cur_blog
 
 
@@ -144,7 +207,7 @@ def generate(subject, load_from, skip_all: bool = True):
     output = generate_topics(subject, storage, 5, 10, False)
     if not skip_all:
         continue_ok = input("Search: Press Enter to continue...")
-        if continue_ok != 'y':
+        if continue_ok != "y":
             logger.info(storage.workspace)
             return
 
@@ -153,20 +216,24 @@ def generate(subject, load_from, skip_all: bool = True):
 
     if not skip_all:
         continue_ok = input("Outline: Press Enter to continue...")
-        if continue_ok != 'y':
+        if continue_ok != "y":
             logger.info(storage.workspace)
             return
 
     outline_blog = json.dumps(outline_output.outline)
-    blog_content = write_blog(outline_blog, outline_output, references, storage, subject)
+    blog_content = write_blog(
+        outline_blog, outline_output, references, storage, subject
+    )
 
     if storage.read(SUGGESTION) != "":
         logger.info("Suggestion already generated")
     else:
         write_config = new_model_config(MODEL_NAME)
-        suggest_agent = SuggestionAgent(model_config=write_config,
-                                        stream_callback_manager=StreamConsoleCallbackManager(),
-                                        temperature=0.1)
+        suggest_agent = SuggestionAgent(
+            model_config=write_config,
+            stream_callback_manager=StreamConsoleCallbackManager(),
+            temperature=0.1,
+        )
         output = suggest_agent.run(subject, blog_content)
         logger.info(output.content)
         storage.write(SUGGESTION, output.content)
@@ -183,6 +250,6 @@ def generate(subject, load_from, skip_all: bool = True):
 
 if __name__ == "__main__":
     problem = read_file("../../input.txt")
-    subject = f'Write a blog about\n\"\"\"{problem}\n\"\"\"'
+    subject = f'Write a blog about\n"""{problem}\n"""'
     load_from = ""
     generate(subject, load_from)

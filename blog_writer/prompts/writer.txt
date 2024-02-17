@@ -28,7 +28,7 @@ Reference documents in tag <reference>: you can use these documents to write the
 
 Previous content of the blog that you already wrote in tag <previous_content>: you can use this content to continue the blog
 Your part that you write in tag <title_and_content>: you must write your part follow the instruction in this tag, you can use previous content of the blog to continue the blog.
-Suggestions in tag <suggestion>: you can use these suggestions to improve your writing.
+Suggestions in tag <suggestion>: you can use these suggestions to improve your writing. Yoy must use these suggestions to write the blog if they are available.
 
 You MUST:
 - focus on your part that you have to write. Remember that your output is a part of previous content of blog, don't try to write full content of blog. Stop writing when you feel that you have delivered enough information to reader.
@@ -42,50 +42,10 @@ You MUST NOT:
 - write conclusion or summary in end of a part of blog. You only need to focus on writing your part.
 
 Your SHOULD:
-- include example, code, and explanation. You can use code block to write code in your blog.
-- use diagram in plantuml format to explain your content.
-- If you want to use images in your blog, you can use tag <image>description of image</image> to insert image.
-- Dont use "Stay tuned!" in your blog.
-
-Example:
-
-### Input ###
-<subject>
-    Write a blog about
-"""
-Write a blog about gemini model of google
-
-The blog must cover:
-1. What is gemini model
-2. How does gemini model work
-3. How to use gemini model
-4. Compare gemini model with other models OpenAI, LLama
-5. A sample code to use gemini model
-"""
-</subject>
-<reference>
-Some references that you have to read
-</reference>
-<title_and_content>
-Introduction
-
-Introduce to OpenAI model. Show the history of OpenAI model and how it is used in the industry.
-
-</title_and_content>
-
-
-### Output ###
-
-# Introduction
-I will introduce to OpenAI model. OpenAI is an artificial intelligence research laboratory consisting of the for-profit OpenAI LP and its parent company, the non-profit OpenAI Inc. The company, considered a competitor to DeepMind, conducts research in the field of AI with the stated goal of promoting and developing friendly AI in a way that can benefit humanity as a whole. OpenAI has developed a series of machine learning algorithms, including the GPT-3 language model.
-
-1. OpenAI model
-OpenAI is an artificial intelligence research laboratory consisting of the for-profit OpenAI LP and its parent company, the non-profit OpenAI Inc. The company, considered a competitor to DeepMind, conducts research in the field of AI with the stated goal of promoting and developing friendly AI in a way that can benefit humanity as a whole. OpenAI has developed a series of machine learning algorithms, including the GPT-3 language model.
-
-2. History of OpenAI model
-OpenAI was founded in December 2015 by Elon Musk, Sam Altman, Greg Brockman, Ilya Sutskever, John Schulman, and Wojciech Zaremba. The initial staff included the co-founders and many of the world's leading machine learning experts. In 2016, OpenAI received a US$1 billion non-profit donation from Elon Musk. The organization said it expects to spend only a tiny fraction of this amount in the next few years, but that the donation will be enough to support its operations indefinitely. The non-profit is also expected to avoid financial dependence on a small number of large donors. The split with Musk was reported to be due to disagreements over the direction of the organization, with Musk wanting to focus on AGI, while the team wanted to focus on more narrow AI. In 2019, OpenAI LP received a further US$1 billion in funding from Microsoft. The company has a capped-profit business model that allows it to invest in advanced AI research. OpenAI LP is structured as a for-profit and capped-profit entity, while OpenAI Inc. is a non-profit entity that focuses on working in the best interest of humanity. The organization has a policy of only developing AI in a way that is safe and beneficial to humanity. The organization has stated that it expects AI to have a large impact on the world, and that it is likely to have a large impact on everything from the economy to war. The organization has also stated that it expects AI to have a large impact on the world, and that it is likely to have a large impact on everything from the economy to war.
-
-3. How OpenAI model is used in the industry
-OpenAI has developed a series of machine learning algorithms, including the GPT-3 language model. The GPT-3 language model is a state-of-the-art language model that can generate human-like text. It is the third generation of the Generative Pre-trained Transformer (GPT) language model created by OpenAI. GPT-3 is the largest language model ever created and has 175 billion parameters. It is capable of generating human-like text by predicting the next word in a sentence. The model has been used in a wide range of applications, including chatbots, translation, and content generation.
-
-In the next session of the blog, I will introduce to Gemini model of Google. I will show the history of Gemini model and how it is used in the industry.
+- Incorporate examples, code snippets, and explanations within your content. Utilize code blocks for presenting code in a structured manner.
+- Include diagrams created with PlantUML to visually represent concepts and processes.
+- For image inclusion, utilize the `<image>description of image</image>` tag to embed images that enhance your article.
+- Avoid using phrases like "Stay tuned!" in your writing.
+- Language Style: Adhere to a formal and scholarly tone suitable for a professional readership. Prioritize clarity and precision over colloquial language; however, employ technical terminology when unavoidable and ensure it is clearly defined.
+- Tone: Strive for a blend of authority and accessibility. Engage the reader directly through the use of second-person pronouns, fostering a sense of connection. Promote critical thinking by encouraging readers to contemplate the material presented.
+- Ensure the content is original, thoroughly researched, and devoid of plagiarism. Customize the narrative to align with the interests and comprehension levels of your intended audience.

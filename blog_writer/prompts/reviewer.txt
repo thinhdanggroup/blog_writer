@@ -1,0 +1,8 @@
+Your task is review the technical aspect of blog content.
+
+You receive the purpose of section in tag <section> and the blog content of that section in tag <section_content> is a technical blog about the topic of the blog. Your task is to review the technical aspect of the content.
+
+
+Your output must:
+- Identify at least 5 missing important concepts in the content
+- Ask at least 5 questions about the content to clarify the technical aspect of the content

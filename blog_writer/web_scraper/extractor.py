@@ -5,6 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from langchain.document_loaders import AsyncHtmlLoader
 from langchain.document_transformers import Html2TextTransformer
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
@@ -24,20 +25,6 @@ class WebExtractor(WebExtractorInterface):
         self._extractor_config = extractor_config
         self._model_config = model_config
 
-    # def get_content(self, url: str) -> Optional[str]:
-    #     page_source = requests.get(url=url).content
-    #     soup = BeautifulSoup(page_source, "html.parser")
-    #
-    #     for script in soup(["script", "style"]):
-    #         script.extract()
-    #
-    #     text = self._get_text(soup=soup)
-    #
-    #     lines = (line.strip() for line in text.splitlines())
-    #     chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
-    #     text = "\n".join(chunk for chunk in chunks if chunk)
-    #     return text
-
     def get_content(self, url) -> Optional[str]:
         urls = [url]
         loader = AsyncHtmlLoader(urls)
@@ -48,6 +35,11 @@ class WebExtractor(WebExtractorInterface):
 
     def extract(self, url: str, query: str) -> Optional[Document]:
         text = self.get_content(url=url)
+        # Grab the first 1000 tokens of the site
+        # splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        #     chunk_size=30000, chunk_overlap=0
+        # )
+        # splits = splitter.split_documents(text)
         doc = self._summarize_text(text=text, question=query)
         if doc is None:
             return None
@@ -71,13 +63,12 @@ class WebExtractor(WebExtractorInterface):
         model = create_chat_model(
             temperature=self._extractor_config.temperature,
             model_config=self._model_config,
-            max_tokens=2000,
             stream_callback_manager=StreamConsoleCallbackManager()
         )
 
         messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
 
-        data = StreamTokenHandler(model)(messages)
+        data = StreamTokenHandler(model)(messages, debug=False)
         result = load_json(data)
         text_result = Document()
         for question in result.get("questions", []):

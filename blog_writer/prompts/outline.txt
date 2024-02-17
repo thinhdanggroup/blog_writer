@@ -15,24 +15,29 @@ Your output format in JSON:
   "outline": [
     {
       "header": "Introduction",
-      "short_description": "..."
+      "short_description": "...",
+      "percentage": 10 # percentage of the blog post
     },
     {
       "header": "Write outline",
       "short_description": "..."
+      "percentage": 20 # percentage of the blog post
     },
     {
       "header": "Write content",
       "short_description": "..."
+      "percentage": 50 # percentage of the blog post
     },
     {
       "header": "Review",
       "short_description": "..."
+        "percentage": 10 # percentage of the blog post
     },
     ... # add more header as you want
     {
       "header": "Conclusion",
       "short_description": "..."
+      "percentage": 10 # percentage of the blog post
     }
   ],
   "description": "description"

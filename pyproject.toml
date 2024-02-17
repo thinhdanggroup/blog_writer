@@ -20,6 +20,7 @@ langchain-google-genai = "^0.0.7"
 pillow = "^10.2.0"
 langchain-openai = "^0.0.5"
 flask = "2.2.2"
+bing-chat = "^1.9.5"
 
 
 [build-system]

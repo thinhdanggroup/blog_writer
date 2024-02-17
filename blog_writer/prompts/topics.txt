@@ -4,6 +4,31 @@ You receive a subject and you have to provide topics that can research from prov
 
 You have to suggest at least {no_topics} topics and at least {no_subtopics} subtopics for each topic.
 
-Subject: ...
-Output format:
-{output}
+Subject is subject of the blog post. Subject in tag <subject>.
+Output format in JSON.
+"""
+{{
+    "topics": [
+        {{
+            "topic": "topic1",
+            "subtopics": [
+                "subtopic1",
+                "subtopic2",
+                "subtopic3"
+            ]
+        }},
+        {{
+            "topic": "topic2",
+            "subtopics": [
+                "subtopic1",
+                "subtopic2",
+                "subtopic3"
+            ]
+        }}
+    ]
+}}
+"""
+
+With:
+- topic is a part of the subject that you suggest to research, it helps improve the quality of the blog post.
+- subtopic is a part of the topic that you suggest to research, it should be question or a problem that you can research and write a blog post from it.
