@@ -2405,6 +2405,31 @@ files = [
 ]
 
 [[package]]
+name = "re-edge-gpt"
+version = "0.0.33"
+description = "Microsoft's Bing Chat AI"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "re_edge_gpt-0.0.33-py3-none-any.whl", hash = "sha256:0935d8329c73e26d1235d475630df46d0afe18b6027540988ab56ea90844d102"},
+    {file = "re_edge_gpt-0.0.33.tar.gz", hash = "sha256:f436085dab0f705f1325b648524a72ecabd6011c775a92c7d64d52b241ecbe3d"},
+]
+
+[package.dependencies]
+aiohttp = "*"
+Brotli = "*"
+certifi = "*"
+httpx = "*"
+prompt-toolkit = "*"
+regex = "*"
+requests = "*"
+rich = "*"
+
+[package.extras]
+api = ["Flask-CORS", "apispec", "apispec-webframeworks", "flask[async]", "gunicorn", "marshmallow"]
+gui = ["Pyside6", "SpeechRecognition", "pyttsx3", "qt-material"]
+
+[[package]]
 name = "referencing"
 version = "0.30.2"
 description = "JSON Referencing + Python"
@@ -3256,4 +3281,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ac01519a241fe08cf230f46f348c3603466a4100bfaa166bba6d498c36b563dc"
+content-hash = "45342edf65ca400479795aee3e9e33f7dbb20576457d183137912d01ecfaf2c7"

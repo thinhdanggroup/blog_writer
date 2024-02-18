@@ -163,3 +163,4 @@ input.txt
 .vercel
 .idea/*
 .DS_Store
+data/copilot_cookies.json

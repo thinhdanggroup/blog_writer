@@ -1,5 +1,6 @@
 import json
 
+from blog_writer.agents.enrichment import EnrichmentAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
 from blog_writer.agents.reviewer import ReviewAgent
 from blog_writer.agents.suggestion import SuggestionAgent
@@ -24,6 +25,8 @@ from blog_writer.core.final_blog import fix_format
 TOPIC_FILE = "topics.json"
 SEARCH_FILE = "search.json"
 OUTLINE_FILE = "outline.json"
+BLOG_V1_FILE = "blog_v1.md"
+BLOG_V2_FILE = "blog_v2.md"
 BLOG_FILE = "blog.md"
 REVIEW_FILE = "review.md"
 FINAL_BLOG_FILE = "final_blog.md"
@@ -31,7 +34,7 @@ SUGGESTION = "suggestion.json"
 
 
 def generate_topics(
-    topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
+        topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
 ) -> TopicsAgentOutput:
     if debug:
         return TopicsAgentOutput(
@@ -57,7 +60,7 @@ def generate_topics(
 
 
 def search_from_topics(
-    subject: str, topics: dict, config, storage, debug: bool = False
+        subject: str, topics: dict, config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
         config.model_config, config.web_search, config.web_extractor
@@ -83,7 +86,7 @@ def search_from_topics(
 
 
 def write_outline(
-    subject: str, references: SearchResult, storage, debug: bool = False
+        subject: str, references: SearchResult, storage, debug: bool = False
 ) -> OutlineAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
@@ -106,12 +109,12 @@ def write_outline(
 
 
 def critique(
-    subject: str,
-    outline: str,
-    completed_part: str,
-    current_part: str,
-    references: SearchResult,
-    debug: bool = False,
+        subject: str,
+        outline: str,
+        completed_part: str,
+        current_part: str,
+        references: SearchResult,
+        debug: bool = False,
 ) -> WriteCritiqueAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
@@ -131,12 +134,12 @@ def critique(
 
 
 def write_blog(
-    outline_blog,
-    outline_output,
-    references: SearchResult,
-    storage,
-    subject,
-    use_critique: bool = False,
+        outline_blog,
+        outline_output,
+        references: SearchResult,
+        storage,
+        subject,
+        use_critique: bool = False,
 ) -> str:
     blog_content = storage.read(BLOG_FILE)
     if blog_content != "":
@@ -153,50 +156,47 @@ def write_blog(
         temperature=0.5,
     )
 
-    cur_blog = ""
+    enrichment = EnrichmentAgent()
+
+    first_version = ""
+    with_suggestions = ""
+    final_blog = ""
     review_blog = ""
-    i = 1
-
-    max_retry = 1
     for o in outline_output.outline:
-        i = 0
         suggestions = ""
-        last_content = ""
-        while i <= max_retry:
-            cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
-            out_content = writer_agent.run(
-                subject, references, cur_blog, cur_section, suggestions
-            )
-            last_content = out_content.content
-            i += 1
+        cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
+        out_content = writer_agent.run(
+            subject, references, final_blog, cur_section, suggestions
+        )
+        last_content = out_content.content
+        first_version += last_content + "\n\n"
 
-            review_output = review_agent.run(
-                section=cur_section, section_content=last_content
-            )
-            review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
+        review_output = review_agent.run(
+            section=cur_section, section_content=last_content
+        )
+        review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
 
-            # run with suggestions
-            out_content = writer_agent.run(
-                subject, references, cur_blog, cur_section, review_output.review_msg
-            )
-            last_content = out_content.content
+        # run with suggestions
+        out_content = writer_agent.run(
+            subject, references, final_blog, cur_section, review_output.review_msg
+        )
+        last_content = out_content.content
+        with_suggestions += last_content + "\n\n"
 
-            if not use_critique or i == max_retry:
-                break
+        # run with enrichment
+        enrichment_output = enrichment.run(
+            section_topic=cur_section, current_content=last_content
+        )
+        last_content = enrichment_output.content
+        review_blog += f"\n\n ### Questions follow \n\n {enrichment_output.suggestions} \n\n"
 
-            critiq = critique(
-                subject, outline_blog, cur_blog, out_content.content, references
-            )
-            # if critiq.success:
-            #     break
-            suggestions = critiq.critique
+        final_blog += last_content + "\n\n"
 
-        cur_blog += last_content + "\n\n"
-        i += 1
-
-    storage.write(BLOG_FILE, cur_blog)
+    storage.write(BLOG_V1_FILE, first_version)
+    storage.write(BLOG_V2_FILE, with_suggestions)
+    storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
-    return cur_blog
+    return final_blog
 
 
 def generate(subject, load_from, skip_all: bool = True):

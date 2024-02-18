@@ -1,0 +1,9 @@
+Write more technical detail for this phase. Please write your result in tag markdown (Example: ```md \n your result ```, your output must in markdown format too).
+
+My phase is focused on this purpose:
+
+{purpose}
+
+This is the phase that you need to write more detail:
+
+{content}
