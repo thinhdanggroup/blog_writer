@@ -2,6 +2,7 @@ import json
 
 from blog_writer.agents.enrichment import EnrichmentAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
+from blog_writer.agents.query_generator import QueryGeneratorAgent
 from blog_writer.agents.reviewer import ReviewAgent
 from blog_writer.agents.suggestion import SuggestionAgent
 from blog_writer.agents.topics import TopicAgent, TopicsAgentOutput
@@ -66,6 +67,13 @@ def search_from_topics(
         config.model_config, config.web_search, config.web_extractor
     )
 
+    model_config = new_model_config(MODEL_NAME)
+    query_agent = QueryGeneratorAgent(
+        model_config=model_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
+
     if debug:
         return json.loads(read_file(f"{ROOT_DIR}/data/example_search.json"))
 
@@ -76,7 +84,8 @@ def search_from_topics(
     outline = dict()
 
     for _, topic in enumerate(topics):
-        contents = web_scarper.scrape(f"{topic}", topics[topic])
+        search_query = query_agent.run(subject, topic)
+        contents = web_scarper.scrape(f"{search_query.content}", topics[topic])
         if len(contents) == 0:
             continue
         outline[topic] = contents

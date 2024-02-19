@@ -1,0 +1,7 @@
+Your task is generated a query message that uses to input the google to search for the information. The query message should be in the form of a question. The question should be related to the topic of the task.
+
+I will provide you with the topic in tag <topic> and the subtopic in tag <subtopic> that you have to focus on.
+
+For example, if the topic is "I want to research NodeJS" and the subtopic is "Event Loop", you can generate the query "What is the event loop in NodeJS?".
+
+Now, this is my input:
