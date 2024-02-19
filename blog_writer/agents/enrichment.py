@@ -110,7 +110,10 @@ class EnrichmentAgent:
         if len(question) > 4000:
             question = question[:4000]
 
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.get_event_loop()
         return loop.run_until_complete(self._call_llm(question))
 
     def run(

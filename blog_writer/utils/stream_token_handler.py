@@ -24,12 +24,13 @@ class StreamTokenHandler:
                 output += message.content
         return output
 
-    def __call__(self, messages: List[BaseMessage]) -> str:
-        logger.info("\033[31m****StreamTokenHandler****\n%s\033[0m", self._parse_message(messages))
+    def __call__(self, messages: List[BaseMessage], debug:bool = True) -> str:
+        if debug:
+            logger.info("\033[31m****StreamTokenHandler****\n%s\033[0m", self._parse_message(messages))
 
         for chunk in self.llm.stream(messages):
             content = chunk.content
             self.output += content
-
-        logger.info("\033[31m****StreamTokenHandler output****\n%s\033[0m", self.output)
+        if debug:
+            logger.info("\033[31m****StreamTokenHandler output****\n%s\033[0m", self.output)
         return self.output
