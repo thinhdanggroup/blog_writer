@@ -46,7 +46,7 @@ class WebScraper(WebScraperInterface):
                 if search_result is None or len(search_result.answers) == 0:
                     continue
 
-                search_result.href = href
+                # search_result.href = href
                 found += 1
                 ref_sources.append(search_result)
                 if found >= self._max_result:

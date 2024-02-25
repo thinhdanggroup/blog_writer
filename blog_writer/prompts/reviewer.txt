@@ -5,4 +5,4 @@ You receive the purpose of section in tag <section> and the blog content of that
 
 Your output must:
 - Identify at least 5 missing important concepts in the content
-- Ask at least 5 questions about the content to clarify the technical aspect of the content
+- Ask at least 5 questions about the content to clarify the technical aspect of the content. Remember that question must be specific and related to the <section_content>.

@@ -21,6 +21,7 @@ from re_edge_gpt import ConversationStyle
 
 class EnrichmentAgentOutput:
     def __init__(self, answer: dict = None):
+        self.content = ""
         if answer is None:
             answer = {}
 
@@ -69,7 +70,7 @@ class EnrichmentAgent:
         )
 
     @staticmethod
-    async def _call_llm(question: str) -> None:
+    async def _call_llm(question: str) -> dict:
         bot = None
         response_llm = {}
         try:
@@ -110,11 +111,12 @@ class EnrichmentAgent:
         if len(question) > 4000:
             question = question[:4000]
 
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = asyncio.get_event_loop()
-        return loop.run_until_complete(self._call_llm(question))
+        # try:
+        #     loop = asyncio.get_running_loop()
+        #     return loop.run_until_complete(self._call_llm(question))
+        # except RuntimeError:
+        #     logger.warning("RuntimeError in _generate", exc_info=True)
+        return asyncio.run(self._call_llm(question))
 
     def run(
             self,

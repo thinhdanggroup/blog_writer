@@ -14,31 +14,29 @@ Your output format in JSON:
   "title": "title", # title of your blog post, it should be short and easy to understand
   "outline": [
     {
-      "header": "Introduction",
+      "header": "...",
       "short_description": "...",
-      "percentage": 10 # percentage of the blog post
     },
     {
-      "header": "Write outline",
+      "header": "...",
       "short_description": "..."
-      "percentage": 20 # percentage of the blog post
     },
     {
-      "header": "Write content",
+      "header": "...",
       "short_description": "..."
-      "percentage": 50 # percentage of the blog post
-    },
-    {
-      "header": "Review",
-      "short_description": "..."
-        "percentage": 10 # percentage of the blog post
     },
     ... # add more header as you want
     {
-      "header": "Conclusion",
+      "header": "...",
       "short_description": "..."
-      "percentage": 10 # percentage of the blog post
     }
   ],
   "description": "description"
 }
+
+With:
+- title: title of your blog post, it should be short and easy to understand
+- outline: outline of your blog post
+  + header: header of the section in your blog post, it should be short and easy to understand.
+  + short_description: short description of the section in your blog post that is attractive to readers and has at least 100 words. It must mention the main idea of the section and the main points that you will write in the section.
+- description: description of your blog post that is attractive to readers and has at least 200 words. You must use your outline to write the description.

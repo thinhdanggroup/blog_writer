@@ -1,5 +1,6 @@
 import json
-from typing import Optional
+from json import JSONDecodeError
+from typing import Optional, Type
 
 import requests
 from bs4 import BeautifulSoup
@@ -7,6 +8,7 @@ from langchain.document_loaders import AsyncHtmlLoader
 from langchain.document_transformers import Html2TextTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import SystemMessage, HumanMessage
+from tenacity import retry, stop_after_attempt, retry_if_not_exception_type
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
 from blog_writer.utils.llm import create_chat_model
@@ -53,6 +55,10 @@ class WebExtractor(WebExtractorInterface):
             text += element.text + "\n\n"
         return text
 
+    @retry(
+        retry=retry_if_not_exception_type(JSONDecodeError),
+        stop=stop_after_attempt(3),
+    )
     def _summarize_text(self, text: str, question: str) -> Optional[Document]:
         if not text:
             return None
