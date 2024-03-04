@@ -21,5 +21,5 @@ class Storage:
     def _get_working_folder(self, name: str) -> str:
         dt = datetime.now()
         unique_time = dt.strftime('%y%m%d%H%M%S')
-        name = re.sub('[^a-zA-Z0-9-_]', '-', name.strip().replace(" ", "_").lower()[0:20])
+        name = re.sub('[^a-zA-Z0-9-_]', '-', name.strip().replace(" ", "_").lower()[20:40])
         return unique_time + "_" + name

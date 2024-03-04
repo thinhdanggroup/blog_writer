@@ -165,3 +165,4 @@ input.txt
 .DS_Store
 data/copilot_cookies.json
 data/bing_cookies.json
+logs/*
