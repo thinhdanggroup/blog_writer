@@ -1,5 +1,5 @@
 import json
-from json import JSONDecodeError
+from json.decoder import JSONDecodeError
 from typing import Optional, Type
 
 import requests
@@ -8,10 +8,10 @@ from langchain.document_loaders import AsyncHtmlLoader
 from langchain.document_transformers import Html2TextTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import SystemMessage, HumanMessage
-from tenacity import retry, stop_after_attempt, retry_if_not_exception_type
+from tenacity import retry, stop_after_attempt, retry_if_exception_type
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
-from blog_writer.utils.llm import create_chat_model
+from blog_writer.utils.llm import count_tokens, create_chat_model
 
 from .base import WebExtractorInterface
 from ..model.search import Document, Answer
@@ -56,7 +56,7 @@ class WebExtractor(WebExtractorInterface):
         return text
 
     @retry(
-        retry=retry_if_not_exception_type(JSONDecodeError),
+        retry=retry_if_exception_type(JSONDecodeError),
         stop=stop_after_attempt(3),
     )
     def _summarize_text(self, text: str, question: str) -> Optional[Document]:
@@ -71,6 +71,10 @@ class WebExtractor(WebExtractorInterface):
             model_config=self._model_config,
             stream_callback_manager=StreamConsoleCallbackManager()
         )
+        
+        total_tokens= count_tokens(text)
+        if total_tokens > 32000:
+            raise ValueError("The text is too long to summarize")
 
         messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
 

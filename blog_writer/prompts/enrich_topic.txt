@@ -1,0 +1,8 @@
+I will give you a topic to research. You have to deep think about it. Then give me key takeaway that I must include in my report to fully understand that topic.
+
+The output must have:
+- Main theme of topic
+- Keywords
+- Key takeaways
+
+Now, this is topic that you have to research:

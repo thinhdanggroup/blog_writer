@@ -14,6 +14,7 @@ class LLMType(StrEnum):
     AZURE = "azure"
     GEMINI = "gemini"
     OPEN_ROUTER = "open_router"
+    BING_CHAT = "bing_chat"
 
 class OpenRouterModel(Enum):
     OR_NOUSRESEARCH_NOUS_CAPYBARA_7B_FREE = ("nousresearch/nous-capybara-7b:free",4096)

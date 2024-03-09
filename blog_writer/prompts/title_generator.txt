@@ -1,0 +1,19 @@
+Your task is write simple sentence to describe the following data. The data is provided in tag <messasge>.
+
+Please read <message> and write a simple sentence to describe the data. The describe should be short and easy to understand, and no more than 5 words.
+
+Your answer in JSON format, donot add ```json``` in your answer.:
+
+```json
+{
+    "description": "Your sentence here"
+}
+```
+
+Example:
+
+```json
+{
+    "description": "The blog about different fruits."
+}
+```

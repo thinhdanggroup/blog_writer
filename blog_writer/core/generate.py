@@ -1,4 +1,5 @@
 import json
+from blog_writer.agents.enrich_topic import EnrichTopic
 
 from blog_writer.agents.enrichment import EnrichmentAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
@@ -11,8 +12,8 @@ from blog_writer.agents.write_critique import (
     WriteCritiqueAgentOutput,
 )
 from blog_writer.agents.writer import WriterAgent
-from blog_writer.config.config import load_config, new_model_config
-from blog_writer.config.definitions import ROOT_DIR, MODEL_NAME
+from blog_writer.config.config import Config, load_config, new_model_config
+from blog_writer.config.definitions import ROOT_DIR, MODEL_NAME, LLMType
 from blog_writer.config.logger import logger
 from blog_writer.model.search import SearchResult
 from blog_writer.store.storage import Storage
@@ -29,6 +30,7 @@ OUTLINE_FILE = "outline.json"
 BLOG_V1_FILE = "blog_v1.md"
 BLOG_V2_FILE = "blog_v2.md"
 BLOG_FILE = "blog.md"
+SUBJECT = "subject.md"
 REVIEW_FILE = "review.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
@@ -61,10 +63,10 @@ def generate_topics(
 
 
 def search_from_topics(
-        subject: str, topics: dict, config, storage, debug: bool = False
+        subject: str, topics: dict, config: Config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
-        config.model_config, config.web_search, config.web_extractor
+        config.model_config_gemini, config.web_search, config.web_extractor
     )
 
     model_config = new_model_config(MODEL_NAME)
@@ -207,11 +209,22 @@ def write_blog(
     storage.write(REVIEW_FILE, review_blog)
     return final_blog
 
+def enrich_topic(subject:str):
+    config = new_model_config(LLMType.BING_CHAT, LLMType.BING_CHAT)
+    enrichTopicAgent = EnrichTopic(
+        model_config=config,
+    )
+    output = enrichTopicAgent.run(subject=subject)
+    return output.answer
 
 def generate(subject, load_from, skip_all: bool = True):
     config = load_config()
     subject = subject.strip()
+    subject = enrich_topic(subject)
+    
     storage = Storage(subject, load_from_workspace=load_from)
+    
+    storage.write(SUBJECT, subject)
 
     output = generate_topics(subject, storage, 5, 10, False)
     if not skip_all:

@@ -8,6 +8,8 @@ from blog_writer.config.config import ModelConfig
 from langchain_openai import ChatOpenAI
 
 from blog_writer.config.definitions import LLMType
+from blog_writer.utils.bing_chat import BingChatModel
+import tiktoken
 
 def create_chat_model(
         temperature: float,
@@ -17,7 +19,7 @@ def create_chat_model(
         max_tokens: Optional[int] = None,
         n: int = 1,
         callbacks: Optional[list] = None,
-) -> BaseChatModel:
+) -> BaseChatModel | BingChatModel:
     streaming = stream_callback_manager is not None
     if callbacks is None:
         callbacks = []
@@ -45,6 +47,8 @@ def create_chat_model(
             openai_api_key=model_config.key,
             model_name=model_config.deployment,
         )
+    elif model_config.llm_type == LLMType.BING_CHAT:
+        return BingChatModel()
     else:
         return ChatGoogleGenerativeAI(
             google_api_key=model_config.key,
@@ -58,3 +62,8 @@ def create_chat_model(
             convert_system_message_to_human=True,
             max_output_tokens=2000,
         )
+
+def count_tokens(tokens: str) -> int:
+    enc = tiktoken.encoding_for_model("gpt-4")
+    total = len(enc.encode(tokens))
+    return total

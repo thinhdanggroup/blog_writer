@@ -1,5 +1,5 @@
 
-blog-gen:
+gen-blog:
 	@echo "Generating blog..."
 	@poetry run python main.py 
 	@echo "Done."

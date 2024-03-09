@@ -30,7 +30,7 @@ class ModelConfig:
         return current_key
 
 
-def new_model_config(deployment:str, llm_type:LLMType.GEMINI ) -> ModelConfig:
+def new_model_config(deployment:str, llm_type:str = LLMType.GEMINI ) -> ModelConfig:
     cfg = ModelConfig(llm_type=llm_type)
     cfg.deployment = deployment
     return cfg

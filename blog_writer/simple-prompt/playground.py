@@ -34,8 +34,11 @@ def main():
         print(f"{i + 1}. {usecase}")
 
     # hardcode
-    # selected = 2
-    selected = int(input("Enter a number: "))
+    default_select = 2
+    if default_select == 0:
+        selected = int(input("Enter a number: "))
+    else:
+        selected = default_select
     selected = usecases[selected - 1]
 
     system = read_file(f"{ROOT_DIR}/prompts/{selected}/system.txt")
@@ -43,7 +46,10 @@ def main():
 
     callback = StreamConsoleCallbackManager()
 
-    config = new_model_config(OpenRouterModel.OR_GOOGLE_GEMMA_7B_IT_FREE.value[0], LLMType.OPEN_ROUTER)
+    config = new_model_config(
+        # OpenRouterModel.OR_MISTRALAI_MISTRAL_7B_INSTRUCT_FREE.value[0], LLMType.OPEN_ROUTER
+        LLMType.BING_CHAT, LLMType.BING_CHAT
+    )
     llm = create_chat_model(
         model_config=config,
         temperature=0,
