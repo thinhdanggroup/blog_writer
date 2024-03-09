@@ -9,6 +9,8 @@ from blog_writer.utils.llm import create_chat_model
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.utils.stream_token_handler import StreamTokenHandler
 from utils import read_file, append_file
+from blog_writer.config.config import new_model_config
+from blog_writer.config.definitions import LLMType, OpenRouterModel
 
 load_dotenv()
 
@@ -41,8 +43,9 @@ def main():
 
     callback = StreamConsoleCallbackManager()
 
+    config = new_model_config(OpenRouterModel.OR_GOOGLE_GEMMA_7B_IT_FREE.value[0], LLMType.OPEN_ROUTER)
     llm = create_chat_model(
-        model_config=cfg.model_config,
+        model_config=config,
         temperature=0,
         stream_callback_manager=callback,
         # use_json_format=True,

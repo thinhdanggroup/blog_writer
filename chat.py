@@ -19,11 +19,11 @@ def beautiful_print(text):
 def main():
     print("Start chatbot...\n")
     cfg = load_config()
-    web_extractor = WebExtractor(cfg.web_extractor, cfg.model_config)
-    cfg.model_config.deployment = MODEL_NAME
+    web_extractor = WebExtractor(cfg.web_extractor, cfg.model_config_gemini)
+    cfg.model_config_gemini.deployment = MODEL_NAME
     llm = create_chat_model(
         temperature=0.1,
-        model_config=cfg.model_config,
+        model_config=cfg.model_config_gemini,
         max_tokens=2000,
         stream_callback_manager=StreamConsoleCallbackManager()
     )

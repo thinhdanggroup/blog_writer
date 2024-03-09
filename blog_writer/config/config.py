@@ -4,7 +4,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from blog_writer.config.definitions import ROOT_DIR, MODEL_GPT_35
+from blog_writer.config.definitions import  ROOT_DIR, MODEL_GPT_35, LLMType
 
 
 def get_bool(raw: Any, default: bool = False) -> bool:
@@ -12,13 +12,14 @@ def get_bool(raw: Any, default: bool = False) -> bool:
 
 
 class ModelConfig:
-    def __init__(self):
-        self.llm_type = os.getenv("LLM_TYPE", "azure")
-        self.deployment = os.getenv("MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
-        self.version = os.getenv("MODEL_CONFIG_VERSION")
-        self.base = os.getenv("MODEL_CONFIG_BASE")
-        self._key1 = os.getenv("MODEL_CONFIG_KEY")
-        self._key2 = os.getenv("MODEL_CONFIG_KEY2", self._key1)
+    def __init__(self, llm_type: str = "azure"):
+        self.llm_type = llm_type
+        prefix = llm_type.upper() + "_"
+        self.deployment = os.getenv(prefix+"MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
+        self.version = os.getenv(prefix+"MODEL_CONFIG_VERSION")
+        self.base = os.getenv(prefix+"MODEL_CONFIG_BASE")
+        self._key1 = os.getenv(prefix+"MODEL_CONFIG_KEY")
+        self._key2 = os.getenv(prefix+"MODEL_CONFIG_KEY2", self._key1)
         self._keys = [self._key1, self._key2]
         self._current_index = 0
 
@@ -29,8 +30,8 @@ class ModelConfig:
         return current_key
 
 
-def new_model_config(deployment) -> ModelConfig:
-    cfg = ModelConfig()
+def new_model_config(deployment:str, llm_type:LLMType.GEMINI ) -> ModelConfig:
+    cfg = ModelConfig(llm_type=llm_type)
     cfg.deployment = deployment
     return cfg
 
@@ -51,7 +52,8 @@ class WebExtractorConfig:
 
 class Config:
     def __init__(self):
-        self.model_config = ModelConfig()
+        self.model_config_gemini = ModelConfig(llm_type=LLMType.GEMINI)
+        self.model_config_or = ModelConfig(llm_type=LLMType.OPEN_ROUTER)
         self.web_extractor = WebExtractorConfig()
         self.web_search = WebSearchConfig()
 
