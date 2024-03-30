@@ -79,7 +79,7 @@ class WebExtractor(WebExtractorInterface):
         messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
 
         data = StreamTokenHandler(model)(messages, debug=False)
-        result = load_json(data)
+        result = load_json(data, True)
         text_result = Document()
         for question in result.get("questions", []):
             if not question.get("has_answer", False):

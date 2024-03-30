@@ -47,8 +47,9 @@ def main():
     callback = StreamConsoleCallbackManager()
 
     config = new_model_config(
+        "gemini-pro",LLMType.GEMINI
         # OpenRouterModel.OR_MISTRALAI_MISTRAL_7B_INSTRUCT_FREE.value[0], LLMType.OPEN_ROUTER
-        LLMType.BING_CHAT, LLMType.BING_CHAT
+        # LLMType.BING_CHAT, LLMType.BING_CHAT
     )
     llm = create_chat_model(
         model_config=config,

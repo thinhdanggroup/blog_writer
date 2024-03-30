@@ -12,6 +12,7 @@ def get_system_prompt():
     """
 
 def beautiful_print(text):
+    
     print("========================================")
     print(text)
     print("========================================")

@@ -4,7 +4,7 @@ import re
 from blog_writer.config.logger import logger
 
 
-def load_json(data: str) -> dict:
+def load_json(data: str, throw_if_err: bool = False) -> dict:
     """
     Load JSON from string and return a dict.
 
@@ -20,6 +20,8 @@ def load_json(data: str) -> dict:
         return data
     except json.JSONDecodeError as e:
         logger.error("Error when loading JSON: %s data %s", e, data, exc_info=True)
+        if throw_if_err:
+            raise e
         return {}
 
 
@@ -35,7 +37,8 @@ def extract_json_from_markdown(data: str) -> str:
     """
     if not data.startswith("```"):
         return data
-
+    if "```JSON" in data:
+        val = data.replace("```JSON", "").replace("```json", "")
     val = re.findall(r'```json(.*?)```', data, re.DOTALL)
     if len(val) == 0:
         val = re.findall(r'```(.*?)```', data, re.DOTALL)

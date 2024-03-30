@@ -14,6 +14,9 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 class EnrichTopicOutput:
     def __init__(self, answer: str = ""):
+        if "Generating answers for you" in answer:
+            answer_splitted = answer.split("Generating answers for you")
+            answer = answer_splitted[0] 
         self.answer = answer
 
 
