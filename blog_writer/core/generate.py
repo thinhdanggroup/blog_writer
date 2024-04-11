@@ -1,7 +1,9 @@
 import json
+from blog_writer.agents.description import DescriptionAgent
 from blog_writer.agents.enrich_topic import EnrichTopic
 
 from blog_writer.agents.enrichment import EnrichmentAgent
+from blog_writer.agents.extract_relevant_search import ExtractRelevantSearchAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
 from blog_writer.agents.query_generator import QueryGeneratorAgent
 from blog_writer.agents.reviewer import ReviewAgent
@@ -13,7 +15,7 @@ from blog_writer.agents.write_critique import (
 )
 from blog_writer.agents.writer import WriterAgent
 from blog_writer.config.config import Config, load_config, new_model_config
-from blog_writer.config.definitions import ROOT_DIR, MODEL_NAME, LLMType
+from blog_writer.config.definitions import MODEL_NAME_GEMINI_PRO_15, ROOT_DIR, MODEL_NAME, LLMType, OpenRouterModel
 from blog_writer.config.logger import logger
 from blog_writer.model.search import SearchResult
 from blog_writer.store.storage import Storage
@@ -50,7 +52,7 @@ def generate_topics(
         return out
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config(MODEL_NAME)
+    model_config = new_model_config("mistralai/mistral-7b-instruct:free", llm_type=LLMType.OPEN_ROUTER)
     topic_agent = TopicAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
@@ -108,14 +110,27 @@ def write_outline(
 
     stream_callback = StreamConsoleCallbackManager()
     model_config = new_model_config(MODEL_NAME)
-    writer_agent = OutlineAgent(
+    outline_agent = OutlineAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
-        temperature=0.5,
+        temperature=0.1,
     )
 
-    output = writer_agent.run(subject, references)
-    storage.write(OUTLINE_FILE, output.raw_response)
+    output = outline_agent.run(subject, references)
+    
+    description_agent = DescriptionAgent(
+        model_config=model_config,
+        stream_callback_manager=stream_callback,
+        temperature=0.1,
+    )
+    
+    desc_output = description_agent.run(subject, output.raw_response)
+    
+    result = json.loads(output.raw_response)
+    result["title"] = desc_output.title
+    result["description"] = desc_output.description
+    
+    storage.write(OUTLINE_FILE, json.dumps(result, cls=ObjectEncoder))
     return output
 
 
@@ -166,6 +181,12 @@ def write_blog(
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
+    
+    extract_relevant_search_agent = ExtractRelevantSearchAgent(
+        model_config=write_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
 
     enrichment = EnrichmentAgent()
 
@@ -177,7 +198,7 @@ def write_blog(
         suggestions = ""
         cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
         out_content = writer_agent.run(
-            subject, references, final_blog, cur_section, suggestions
+            topic=subject, references=references, previous_content=final_blog, current_session=cur_section, suggestions=suggestions
         )
         last_content = out_content.content
         first_version += last_content + "\n\n"
@@ -187,9 +208,13 @@ def write_blog(
         )
         review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
 
+        extracted_output = extract_relevant_search_agent.run(
+            purpose=cur_section, references=references, need_to_retrieve=review_output.review_msg
+        )
+
         # run with suggestions
         out_content = writer_agent.run(
-            subject, references, final_blog, cur_section, review_output.review_msg
+            topic=subject, previous_content=final_blog, current_session=cur_section, suggestions=suggestions, retrieved_data=extracted_output.content,
         )
         last_content = out_content.content
         with_suggestions += last_content + "\n\n"
@@ -220,7 +245,8 @@ def enrich_topic(subject:str):
 def generate(subject, load_from, skip_all: bool = True):
     config = load_config()
     subject = subject.strip()
-    subject = enrich_topic(subject)
+    # if load_from == "":
+        # subject = enrich_topic(subject)
     
     storage = Storage(subject, load_from_workspace=load_from)
     

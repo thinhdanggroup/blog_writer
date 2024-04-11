@@ -60,7 +60,7 @@ def create_chat_model(
             verbose=verbose,
             n=n,
             convert_system_message_to_human=True,
-            max_output_tokens=2000,
+            max_output_tokens=4000,
         )
 
 def count_tokens(tokens: str) -> int:

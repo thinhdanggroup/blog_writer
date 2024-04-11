@@ -13,43 +13,42 @@ from blog_writer.utils.stream_token_handler import StreamTokenHandler
 from blog_writer.utils.text import extract_json_from_markdown, load_json
 
 
-class OutlineAgentOutput:
+class DescriptionAgentOutput:
     def __init__(self, answer: str = ""):
         answer = extract_json_from_markdown(answer)
         self.raw_response = answer
         if answer == "":
             return
-        answer = extract_json_from_markdown(answer)
         data = load_json(answer)
-        self.outline = data["outline"]
+        self.title = data["title"]
+        self.description = data["description"]
 
 
-class OutlineAgent(AgentInterface):
+class DescriptionAgent(AgentInterface):
     @staticmethod
     def render_system_message():
         system_message = SystemMessage(
-            content=load_agent_prompt("outline")
+            content=load_agent_prompt("description")
         )
         return system_message
 
     @staticmethod
     def render_human_message(
-            subject: str,
-            references: SearchResult,
+        topic: str,
+            outline: str,
     ):
-        content = wrap_text_with_tag(subject, "subject")
-        content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
-        logger.info("\033[31m****Outline Agent human message****\n%s\033[0m", content)
+        content = wrap_text_with_tag(topic, "purpose")
+        content += wrap_text_with_tag(outline, "outline")
         return HumanMessage(content=content)
 
     def run(
             self,
             topic: str,
-            references: SearchResult,
-    ) -> OutlineAgentOutput:
+            outline: str,
+    ) -> DescriptionAgentOutput:
         human_message = self.render_human_message(
-            subject=topic,
-            references=references,
+            topic=topic,
+            outline=outline,
         )
 
         messages = [
@@ -58,4 +57,4 @@ class OutlineAgent(AgentInterface):
         ]
         content = StreamTokenHandler(self.llm)(messages)
         ai_message = f"{content}\n"
-        return OutlineAgentOutput(ai_message)
+        return DescriptionAgentOutput(ai_message)

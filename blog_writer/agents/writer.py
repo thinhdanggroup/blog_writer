@@ -27,15 +27,19 @@ class WriterAgent(AgentInterface):
     def render_human_message(
             self,
             subject: str,
-            references: SearchResult,
             previous_content: str,
             current_session: str,
             suggestions: str,
+            references: SearchResult = None,
+            retrieved_data: str = None,
     ):
         content = wrap_text_with_tag(subject, "subject")
 
         # reference docs
-        content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
+        if references:
+            content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
+        else:
+            content += wrap_text_with_tag(retrieved_data, "reference")
 
         # previous content
         content += wrap_text_with_tag(previous_content, "previous_content")
@@ -51,10 +55,11 @@ class WriterAgent(AgentInterface):
     def run(
             self,
             topic: str,
-            references: SearchResult,
             previous_content: str,
             current_session: str,
             suggestions: str,
+            references: SearchResult = None,
+            retrieved_data: str = None,
     ) -> WriterAgentOutput:
         human_message = self.render_human_message(
             subject=topic,
@@ -62,6 +67,7 @@ class WriterAgent(AgentInterface):
             previous_content=previous_content,
             current_session=current_session,
             suggestions=suggestions,
+            retrieved_data=retrieved_data,
         )
 
         messages = [

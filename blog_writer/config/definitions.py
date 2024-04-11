@@ -9,6 +9,7 @@ MODEL_AZURE_CHATGPT = "azure-chatgpt"
 # MODEL_NAME = "gpt-4-1106-preview"
 MODEL_GPT_35 = "gpt35-turbo-16k"
 MODEL_NAME = "gemini-pro"
+MODEL_NAME_GEMINI_PRO_15 = "gemini-1.5-pro-latest"
 
 class LLMType(StrEnum):
     AZURE = "azure"
