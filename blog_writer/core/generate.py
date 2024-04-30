@@ -52,7 +52,8 @@ def generate_topics(
         return out
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config("mistralai/mistral-7b-instruct:free", llm_type=LLMType.OPEN_ROUTER)
+    # model_config = new_model_config("mistralai/mistral-7b-instruct:free", llm_type=LLMType.OPEN_ROUTER)
+    model_config = new_model_config("gemini-1.5-pro-latest", llm_type=LLMType.GEMINI)
     topic_agent = TopicAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
