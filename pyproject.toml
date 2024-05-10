@@ -8,7 +8,6 @@ packages = [{include = "blog_writer"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-langchain = "^0.0.263"
 python-dotenv = "^1.0.0"
 duckduckgo-search = "^3.8.4"
 bs4 = "^0.0.1"
@@ -21,7 +20,12 @@ pillow = "^10.2.0"
 langchain-openai = "^0.0.5"
 flask = "2.2.2"
 bing-chat = "^1.9.5"
-re-edge-gpt = "^0.0.33"
+re-edge-gpt = "^0.0.38"
+unlimitedgpt = "^0.1.9.3"
+chatgpt-selenium-automation = {git = "https://github.com/Michelangelo27/chatgpt_selenium_automation.git"}
+langchain-community = "^0.0.37"
+langchain-text-splitters = "^0.0.1"
+langchain-google-community = "^1.0.3"
 
 
 [build-system]

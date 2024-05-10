@@ -29,6 +29,10 @@ class StreamTokenHandler:
             logger.info(f"\033[31m****StreamTokenHandler****\n%s\033[0m \nTotal tokens: {count_tokens(log_msg)} \n", log_msg    )
 
         for chunk in self.llm.stream(messages):
+            if isinstance(chunk, str): 
+                self.output += chunk
+                continue
+            
             content = chunk.content
             self.output += content
         if debug:

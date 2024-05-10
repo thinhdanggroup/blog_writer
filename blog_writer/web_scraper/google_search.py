@@ -1,6 +1,6 @@
 import os
 
-from langchain import GoogleSearchAPIWrapper
+from langchain_community.utilities.google_search import GoogleSearchAPIWrapper
 from langchain_core.tools import Tool
 
 from blog_writer.config.config import WebSearchConfig

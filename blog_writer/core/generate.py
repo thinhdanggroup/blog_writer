@@ -69,7 +69,7 @@ def search_from_topics(
         subject: str, topics: dict, config: Config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
-        config.model_config_gemini, config.web_search, config.web_extractor
+        config.model_config_ollama, config.web_search, config.web_extractor
     )
 
     model_config = new_model_config(MODEL_NAME)
@@ -100,7 +100,7 @@ def search_from_topics(
 
 
 def write_outline(
-        subject: str, references: SearchResult, storage, debug: bool = False
+        subject: str, references: SearchResult, storage, debug: bool = False,config: Config = None
 ) -> OutlineAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
@@ -120,7 +120,7 @@ def write_outline(
     output = outline_agent.run(subject, references)
     
     description_agent = DescriptionAgent(
-        model_config=model_config,
+        model_config=config.model_config_ollama,
         stream_callback_manager=stream_callback,
         temperature=0.1,
     )
@@ -261,7 +261,7 @@ def generate(subject, load_from, skip_all: bool = True):
             return
 
     references = search_from_topics(subject, output.topics, config, storage, False)
-    outline_output = write_outline(subject, references, storage, False)
+    outline_output = write_outline(subject, references, storage, False,config)
 
     if not skip_all:
         continue_ok = input("Outline: Press Enter to continue...")

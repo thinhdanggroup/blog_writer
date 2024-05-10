@@ -54,6 +54,7 @@ class Config:
     def __init__(self):
         self.model_config_gemini = ModelConfig(llm_type=LLMType.GEMINI)
         self.model_config_or = ModelConfig(llm_type=LLMType.OPEN_ROUTER)
+        self.model_config_ollama = ModelConfig(llm_type=LLMType.OLLAMA)
         self.web_extractor = WebExtractorConfig()
         self.web_search = WebSearchConfig()
 

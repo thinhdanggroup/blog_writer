@@ -6,7 +6,7 @@ You are a junior software engineer that has the responsibility for searching for
 Website content in tag <web_site_content> is a string that contains the content of the website.
 Questions in tag <questions> is a list of questions that you have to answer.
 
-Your result format is this format:
+Your result format is JSON format as below JSON structure:
 {
   "questions": [
     {

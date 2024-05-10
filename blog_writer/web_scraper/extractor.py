@@ -4,14 +4,13 @@ from typing import Optional, Type
 
 import requests
 from bs4 import BeautifulSoup
-from langchain.document_loaders import AsyncHtmlLoader
-from langchain.document_transformers import Html2TextTransformer
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_core.messages import SystemMessage, HumanMessage
 from tenacity import retry, stop_after_attempt, retry_if_exception_type
 
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
 from blog_writer.utils.llm import count_tokens, create_chat_model
+from langchain_community.document_loaders.async_html import AsyncHtmlLoader
+from langchain_community.document_transformers.html2text import Html2TextTransformer 
 
 from .base import WebExtractorInterface
 from ..model.search import Document, Answer
@@ -33,6 +32,9 @@ class WebExtractor(WebExtractorInterface):
         docs = loader.load()
         html2text = Html2TextTransformer()
         docs_transformed = html2text.transform_documents(docs)
+        print(docs_transformed)
+        if not docs_transformed or len(docs_transformed) == 0:
+            return None
         return docs_transformed[0].page_content
 
     def extract(self, url: str, query: str) -> Optional[Document]:
@@ -78,7 +80,7 @@ class WebExtractor(WebExtractorInterface):
 
         messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
 
-        data = StreamTokenHandler(model)(messages, debug=False)
+        data = StreamTokenHandler(model)(messages, debug=True)
         result = load_json(data, True)
         text_result = Document()
         for question in result.get("questions", []):

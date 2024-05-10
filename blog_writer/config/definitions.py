@@ -16,6 +16,7 @@ class LLMType(StrEnum):
     GEMINI = "gemini"
     OPEN_ROUTER = "open_router"
     BING_CHAT = "bing_chat"
+    OLLAMA = "ollama"
 
 class OpenRouterModel(Enum):
     OR_NOUSRESEARCH_NOUS_CAPYBARA_7B_FREE = ("nousresearch/nous-capybara-7b:free",4096)
@@ -26,4 +27,9 @@ class OpenRouterModel(Enum):
     OR_OPENROUTER_CINEMATIKA_7B_FREE = ("openrouter/cinematika-7b:free",8000)
     OR_HUGGINGFACEH4_ZEPHYR_7B_BETA_FREE = ("huggingfaceh4/zephyr-7b-beta:free",4096)
     OR_OPENCHAT_OPENCHAT_7B_FREE = ("openchat/openchat-7b:free",8192)
+    
 
+class OllamaModel(Enum):
+    Mistral = "mistral"
+    Llama3 = "llama3"
+    Gemma = "gemma"

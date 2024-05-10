@@ -22,7 +22,7 @@ class ExtractRelevantSearchOutput:
         try:
             data = load_json(answer,True)
             self.content = data["retrieved_content"]
-        except json.JSONDecodeError:
+        except Exception as e:
             self.content = answer
 
 

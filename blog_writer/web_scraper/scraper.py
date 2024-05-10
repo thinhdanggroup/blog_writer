@@ -64,5 +64,5 @@ class WebScraper(WebScraperInterface):
 if __name__ == "__main__":
     config = load_config()
 
-    wc = WebScraper(config.model_config_gemini, config.web_search, config.web_extractor)
-    print(wc.scrape("chain of thought llm", ["how to use chain of thought"]))
+    wc = WebScraper(config.model_config_ollama, config.web_search, config.web_extractor)
+    print(wc.scrape("nodejs interceptor", ["how to build error interceptor in nodejs", "how to build request interceptor in nodejs"]))
