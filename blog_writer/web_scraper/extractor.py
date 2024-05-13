@@ -2,6 +2,7 @@ import json
 from json.decoder import JSONDecodeError
 from typing import Optional, Type
 
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 import requests
 from bs4 import BeautifulSoup
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -32,23 +33,37 @@ class WebExtractor(WebExtractorInterface):
         docs = loader.load()
         html2text = Html2TextTransformer()
         docs_transformed = html2text.transform_documents(docs)
-        print(docs_transformed)
         if not docs_transformed or len(docs_transformed) == 0:
             return None
         return docs_transformed[0].page_content
 
     def extract(self, url: str, query: str) -> Optional[Document]:
         text = self.get_content(url=url)
-        # Grab the first 1000 tokens of the site
-        # splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-        #     chunk_size=30000, chunk_overlap=0
-        # )
-        # splits = splitter.split_documents(text)
-        doc = self._summarize_text(text=text, question=query)
-        if doc is None:
+        text_splitter = RecursiveCharacterTextSplitter(
+            # Set a really small chunk size, just to show.
+            chunk_size=8000,
+            chunk_overlap=400,
+            length_function=len,
+            is_separator_regex=False,
+        )
+        
+        if text is None:
             return None
-        doc.url = url
-        return doc
+        
+        texts = text_splitter.create_documents([text])
+        
+        summary_docs = Document(
+            url=url,
+            answers=[]
+        )
+        
+        for data in texts:
+            doc = self._summarize_text(text=data.page_content, question=query)
+            if doc is None:
+                return None
+            
+            summary_docs.answers.extend(doc.answers)
+        return summary_docs
 
     def _get_text(self, soup: BeautifulSoup):
         text = ""
@@ -63,6 +78,10 @@ class WebExtractor(WebExtractorInterface):
     )
     def _summarize_text(self, text: str, question: str) -> Optional[Document]:
         if not text:
+            return None
+        
+        text = text.strip()
+        if len(text) < 100:
             return None
 
         if not self._extractor_config.with_summary:

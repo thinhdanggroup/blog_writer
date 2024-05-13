@@ -69,7 +69,7 @@ def search_from_topics(
         subject: str, topics: dict, config: Config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
-        config.model_config_ollama, config.web_search, config.web_extractor
+        config.model_config_hf_chat, config.web_search, config.web_extractor
     )
 
     model_config = new_model_config(MODEL_NAME)
@@ -120,7 +120,7 @@ def write_outline(
     output = outline_agent.run(subject, references)
     
     description_agent = DescriptionAgent(
-        model_config=config.model_config_ollama,
+        model_config=config.model_config_hf_chat,
         stream_callback_manager=stream_callback,
         temperature=0.1,
     )

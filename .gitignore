@@ -167,3 +167,4 @@ data/copilot_cookies.json
 data/bing_cookies.json
 logs/*
 data/bing_cookies.txt
+data/hf_cookies

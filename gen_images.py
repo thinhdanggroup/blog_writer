@@ -25,13 +25,7 @@ if __name__ == "__main__":
 
     # Generate image sync
     article_content = """
-    Design Concept: The banner could be a combination of elements that represent Datadog, Node.js, and the concept of navigating pitfalls.
-
-Datadog Representation: You could use the Datadog logo or a stylized version of it. You could also use an image of a dog as a playful nod to the name.
-Node.js Representation: Incorporate the Node.js logo or some recognizable aspect of it into the design.
-Navigating Pitfalls: To represent the concept of navigating pitfalls, you could use imagery like warning signs, hurdles, or a maze. Another idea could be a path that starts with the Node.js logo, goes through a field of warning signs or hurdles (representing the pitfalls), and ends at the Datadog logo.
-Color Scheme: Use a color scheme that aligns with the Datadog and Node.js brand colors to maintain consistency.
-Typography: The title of your blog post should be clearly readable. You could use bold, large letters and place it either at the top or center of the banner.
+    Design Concept:This article provides a step-by-step guide on how to implement user tracking in NestJS applications using DataDog. It covers the basics of NestJS and DataDog, explains the concept of interceptors in NestJS, and shows how to create a custom UserTrackingInterceptor to track user behavior. The guide also covers how to apply and configure the interceptor, test its functionality, and view the tracking data in DataDog. By the end of this article, you will have a comprehensive understanding of user tracking and be able to implement it in your own NestJS applications.
     """
     desc = f"Create image about this description:\n{article_content}"
     curTime = datetime.now().strftime("%Y%m%d%H%M%S")

@@ -18,6 +18,7 @@ class ModelConfig:
         self.deployment = os.getenv(prefix+"MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
         self.version = os.getenv(prefix+"MODEL_CONFIG_VERSION")
         self.base = os.getenv(prefix+"MODEL_CONFIG_BASE")
+        self.username = os.getenv(prefix+"MODEL_CONFIG_USERNAME","")
         self._key1 = os.getenv(prefix+"MODEL_CONFIG_KEY")
         self._key2 = os.getenv(prefix+"MODEL_CONFIG_KEY2", self._key1)
         self._keys = [self._key1, self._key2]
@@ -55,6 +56,7 @@ class Config:
         self.model_config_gemini = ModelConfig(llm_type=LLMType.GEMINI)
         self.model_config_or = ModelConfig(llm_type=LLMType.OPEN_ROUTER)
         self.model_config_ollama = ModelConfig(llm_type=LLMType.OLLAMA)
+        self.model_config_hf_chat = ModelConfig(llm_type=LLMType.HF_CHAT)
         self.web_extractor = WebExtractorConfig()
         self.web_search = WebSearchConfig()
 

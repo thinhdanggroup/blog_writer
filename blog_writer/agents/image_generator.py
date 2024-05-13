@@ -37,7 +37,6 @@ class ImageGeneratorAgent:
                 
             sync_gen = ImageGen(auth_cookie=auth_cooker)
             image_list = sync_gen.get_images(desc)
-            print(image_list)
             name = datetime.now().strftime("%Y%m%d%H%M%S")
             for i, image_url in enumerate(image_list):
                 sync_gen.save_images([image_url], f"{ROOT_DIR}/.working_space/images", file_name=f"{name}_{i}")

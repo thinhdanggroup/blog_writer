@@ -12,10 +12,12 @@ from blog_writer.config.definitions import ROOT_DIR
 
 from langchain_core.messages import BaseMessage
 
+from blog_writer.utils.base_chat_model import BaseChatModel
+
 class ResponseMessage(BaseModel):
     content: str = ""
 
-class BingChatModel:
+class BingChatModel(BaseChatModel):
     @staticmethod
     async def _call_llm(question: str) -> dict:
         bot = None

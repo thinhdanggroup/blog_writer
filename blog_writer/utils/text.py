@@ -2,7 +2,7 @@ import json
 import re
 
 from blog_writer.config.logger import logger
-
+import tiktoken
 
 def load_json(data: str, throw_if_err: bool = False) -> dict:
     """
@@ -35,8 +35,26 @@ def extract_json_from_markdown(data: str) -> str:
     Returns:
         str
     """
-    if not data.startswith("```"):
+    data = data.strip()
+    
+    lines = data.split("\n")
+    found = False
+    new_data = ""
+    for line in lines:
+        if found:
+            new_data += line + "\n"
+        if line.startswith("```"):
+            found = True
+            new_data += line + "\n"
+            continue
+    
+    if new_data == "":
         return data
+    
+    data = new_data.strip()
+    
+    if "```\n{" in data:
+        data = data.replace("```\n{", "```json\n{")
     if "```JSON" in data:
         val = data.replace("```JSON", "").replace("```json", "")
     val = re.findall(r'```json(.*?)```', data, re.DOTALL)
@@ -45,52 +63,37 @@ def extract_json_from_markdown(data: str) -> str:
 
     return val[0] if val else data
 
+def count_tokens(tokens: str) -> int:
+    enc = tiktoken.encoding_for_model("gpt-4")
+    total = len(enc.encode(tokens))
+    return total
+
+
 
 if __name__ == "__main__":
-    input_val = """```
-{
-    "topics": [
-        {
-            "topic": "Overview of the Gemini Model",
-            "subtopics": [
-                "Introduction to the Gemini Model",
-                "Key Components of the Gemini Model",
-                "Benefits and Applications of the Gemini Model"
-            ]
-        },
-        {
-            "topic": "Architecture and Implementation of the Gemini Model",
-            "subtopics": [
-                "High-Level Architecture of the Gemini Model",
-                "Key Implementation Details and Challenges",
-                "Scalability and Performance Considerations"
-            ]
-        },
-        {
-            "topic": "Training and Fine-Tuning the Gemini Model",
-            "subtopics": [
-                "Data Preparation and Preprocessing for Training",
-                "Selection of Hyperparameters and Optimization Techniques",
-                "Strategies for Fine-Tuning and Transfer Learning"
-            ]
-        },
-        {
-            "topic": "Applications and Use Cases of the Gemini Model",
-            "subtopics": [
-                "Natural Language Processing and Text Generation",
-                "Machine Translation and Multilingual Tasks",
-                "Question Answering and Information Retrieval"
-            ]
-        },
-        {
-            "topic": "Recent Advancements and Future Directions in the Gemini Model",
-            "subtopics": [
-                "Integration with Other Language Models and Architectures",
-                "Exploration of Multimodal and Multitask Learning",
-                "Ethical and Societal Implications of the Gemini Model"
-            ]
-        }
-    ]
-}
-```"""
-    print(extract_json_from_markdown(input_val))
+    input_val = """{
+  "questions": [
+    {
+      "question": "What are Ollama models and how do they work?",
+      "has_answer": false
+    },
+    {
+      "question": "Key features and benefits of using Ollama models",
+      "has_answer": false
+    },
+    {
+      "question": "Different types of Ollama models and their specific use cases",
+      "has_answer": false
+    },
+    {
+      "question": "Comparison of Ollama models with other language models like LLaMA, GPT",
+      "has_answer": false
+    },
+    {
+      "question": "Limitations of Ollama models and areas for improvement",
+      "has_answer": false
+    }
+  ]
+}"""
+    # extracted_data = extract_json_from_markdown(input_val)
+    print(json.loads(input_val))

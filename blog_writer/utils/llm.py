@@ -11,6 +11,8 @@ from blog_writer.config.definitions import LLMType
 from blog_writer.utils.bing_chat import BingChatModel
 import tiktoken
 
+from blog_writer.utils.hf_chat import HFChatModel
+
 
 def create_chat_model(
     temperature: float,
@@ -54,6 +56,8 @@ def create_chat_model(
         return BingChatModel()
     elif model_config.llm_type == LLMType.OLLAMA:
         return Ollama(model=model_config.deployment)
+    elif model_config.llm_type == LLMType.HF_CHAT:
+        return HFChatModel(model_name=model_config.deployment)
     else:
         return ChatGoogleGenerativeAI(
             google_api_key=model_config.key,

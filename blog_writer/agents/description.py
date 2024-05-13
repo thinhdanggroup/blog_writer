@@ -19,7 +19,10 @@ class DescriptionAgentOutput:
         self.raw_response = answer
         if answer == "":
             return
+        print(answer)
         data = load_json(answer)
+        print(data)
+        
         self.title = data["title"]
         self.description = data["description"]
 

@@ -17,6 +17,7 @@ class LLMType(StrEnum):
     OPEN_ROUTER = "open_router"
     BING_CHAT = "bing_chat"
     OLLAMA = "ollama"
+    HF_CHAT = "hf_chat"
 
 class OpenRouterModel(Enum):
     OR_NOUSRESEARCH_NOUS_CAPYBARA_7B_FREE = ("nousresearch/nous-capybara-7b:free",4096)
@@ -30,6 +31,16 @@ class OpenRouterModel(Enum):
     
 
 class OllamaModel(Enum):
-    Mistral = "mistral"
-    Llama3 = "llama3"
-    Gemma = "gemma"
+    MISTRAL = "mistral"
+    LLAMA3 = "llama3"
+    GEMMA = "gemma"
+    
+class HFModel(Enum):
+    CO_HERE_FOR_AI = "CohereForAI/c4ai-command-r-plus"
+    ZEPHYR = "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1"
+    MISTRAL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+    GEMMA = "google/gemma-1.1-7b-it"
+    MISTRAL_7B = "mistralai/Mistral-7B-Instruct-v0.2"
+    PHI_3_MINI = "microsoft/Phi-3-mini-4k-instruct"
+    LLAMA3 = "meta-llama/Meta-Llama-3-70B-Instruct"
+    

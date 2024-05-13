@@ -29,10 +29,12 @@ With:
 Beside, I also give you the main purpose of the article in the tag <purpose></purpose>. You can refer to this purpose to write the description of the article.
 
 Your output MUST in JSON format:
+```json
 {
   "title": "...",
   "description": "..."
 }
+```
 
 With:
 - title: title of the article that you think is suitable for the article.
