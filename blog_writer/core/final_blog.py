@@ -5,6 +5,31 @@ from blog_writer.store.storage import Storage
 from blog_writer.utils.text import load_json
 
 
+DATA_OUTPUT = """---
+author:
+    name: "Thinh Dang"
+    avatar: "/assets/images/avatar.png"
+    bio: "Experienced Fintech Software Engineer Driving High-Performance Solutions"
+    location: "Viet Nam"
+    email: "thinhdang206@gmail.com"
+    links:
+        -   label: "Linkedin"
+            icon: "fab fa-fw fa-linkedin"
+            url: "https://www.linkedin.com/in/thinh-dang/"
+toc: true
+toc_sticky: true
+header:
+    overlay_image: /assets/images/xxx/banner.jpeg
+    overlay_filter: 0.5
+    teaser: /assets/images/xxx/banner.jpeg
+title: {{title}}
+tags:
+    - xxx
+    - yyy 
+
+---"""
+
+
 def remove_references(text):
     return re.sub(r'\[\^.*?\^\]', '', text)
 
@@ -30,8 +55,8 @@ def fix_format(storage):
     outline = load_json(o)
 
     final_content = ""
-
-    final_content += f"# {outline['title']}\n\n"
+    
+    final_content += DATA_OUTPUT.replace("{{title}}", outline['title']) + "\n\n"
     final_content += f"{outline['description']}\n\n"
 
     list_references = set()

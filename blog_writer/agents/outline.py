@@ -38,7 +38,8 @@ class OutlineAgent(AgentInterface):
             references: SearchResult,
     ):
         content = wrap_text_with_tag(subject, "subject")
-        content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
+        if references is not None:
+            content += wrap_text_with_tag(references.get_minified(), "reference")
         logger.info("\033[31m****Outline Agent human message****\n%s\033[0m", content)
         return HumanMessage(content=content)
 

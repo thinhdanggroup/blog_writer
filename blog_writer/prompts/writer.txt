@@ -34,7 +34,6 @@ You MUST:
 - focus on your part that you have to write. Remember that your output is a part of previous content of blog, don't try to write full content of blog. Stop writing when you feel that you have delivered enough information to reader.
 - write the blog in tone of voice that is easy to understand by reader.
 - your output is in markdown format (table of content, images, videos, etc. are allowed). If you want to write code in your blog, you can use code block and use python as programming language.
-- When you cite reference in your blog, you should re-use the number of your reference in <previous_content> tag. If it is the first time you cite the reference, you should use a new number for the reference. Your reference should be in the end of your blog.
 - Use "I" to refer to yourself in your blog
 - Your output must in Markdown format
 

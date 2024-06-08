@@ -3,6 +3,7 @@ from blog_writer.agents.description import DescriptionAgent
 from blog_writer.agents.enrich_topic import EnrichTopic
 
 from blog_writer.agents.enrichment import EnrichmentAgent
+from blog_writer.agents.example_writer import ExampleWriter
 from blog_writer.agents.extract_relevant_search import ExtractRelevantSearchAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
 from blog_writer.agents.query_generator import QueryGeneratorAgent
@@ -32,8 +33,10 @@ OUTLINE_FILE = "outline.json"
 BLOG_V1_FILE = "blog_v1.md"
 BLOG_V2_FILE = "blog_v2.md"
 BLOG_FILE = "blog.md"
+STATUS_TRACKER = "blog_status.json"
 SUBJECT = "subject.md"
 REVIEW_FILE = "review.md"
+EXAMPLE_FILE = "example.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 
@@ -83,7 +86,10 @@ def search_from_topics(
         return json.loads(read_file(f"{ROOT_DIR}/data/example_search.json"))
 
     if storage.read(SEARCH_FILE) != "":
-        return json.loads(storage.read(SEARCH_FILE))
+        
+        result = SearchResult()
+        result.load_from_json(storage.read(SEARCH_FILE))
+        return result
 
     result = SearchResult()
     outline = dict()
@@ -167,16 +173,24 @@ def write_blog(
         storage,
         subject,
         use_critique: bool = False,
+        cfg: Config = None
 ) -> str:
     blog_content = storage.read(BLOG_FILE)
     if blog_content != "":
         return blog_content
     write_config = new_model_config(MODEL_NAME)
     writer_agent = WriterAgent(
-        model_config=write_config,
+        model_config=cfg.model_config_hf_chat,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
+    
+    write_with_review = WriterAgent(
+        model_config=cfg.model_config_hf_chat,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
+    
     review_agent = ReviewAgent(
         model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
@@ -188,6 +202,12 @@ def write_blog(
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
+    
+    example_writer = ExampleWriter(
+        model_config=cfg.model_config_hf_chat,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.1,
+    )
 
     enrichment = EnrichmentAgent()
 
@@ -195,44 +215,63 @@ def write_blog(
     with_suggestions = ""
     final_blog = ""
     review_blog = ""
-    for o in outline_output.outline:
-        suggestions = ""
-        cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
-        out_content = writer_agent.run(
-            topic=subject, references=references, previous_content=final_blog, current_session=cur_section, suggestions=suggestions
-        )
-        last_content = out_content.content
-        first_version += last_content + "\n\n"
+    example_blog = ""
+    
+    # TODO: remove
+    
+    references = None
+    idx = 0
+    
+    try:
+        for o in outline_output.outline:
+            suggestions = ""
+            cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
+            out_content = writer_agent.run(
+                topic=subject, references=references, previous_content=final_blog, current_session=cur_section, suggestions=suggestions
+            )
+            last_content = out_content.content
+            first_version += last_content + "\n\n"
 
-        review_output = review_agent.run(
-            section=cur_section, section_content=last_content
-        )
-        review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
+            review_output = review_agent.run(
+                section=cur_section, section_content=last_content
+            )
+            review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
 
-        extracted_output = extract_relevant_search_agent.run(
-            purpose=cur_section, references=references, need_to_retrieve=review_output.review_msg
-        )
+            extracted_output = extract_relevant_search_agent.run(
+                purpose=cur_section, references=references, need_to_retrieve=review_output.review_msg
+            )
 
-        # run with suggestions
-        out_content = writer_agent.run(
-            topic=subject, previous_content=final_blog, current_session=cur_section, suggestions=suggestions, retrieved_data=extracted_output.content,
-        )
-        last_content = out_content.content
-        with_suggestions += last_content + "\n\n"
-
-        # run with enrichment
-        enrichment_output = enrichment.run(
-            section_topic=cur_section, current_content=last_content
-        )
-        last_content = enrichment_output.content
-        review_blog += f"\n\n ### Questions follow \n\n {enrichment_output.suggestions} \n\n"
-
-        final_blog += last_content + "\n\n"
+            # run with suggestions
+            out_content = write_with_review.run(
+                topic=subject, previous_content=final_blog, current_session=cur_section, suggestions=suggestions, retrieved_data=extracted_output.content,
+            )
+            last_content = out_content.content
+            
+            # TODO: enrichment is stop because Bingchat is not working
+            # enrichment_output = enrichment.run(
+            #     section_topic=cur_section, current_content=last_content
+            # )
+            # last_content = enrichment_output.content
+            
+            # generate example 
+            example_output = example_writer.run(
+                content=last_content
+            )
+            
+            # final result
+            with_suggestions += last_content + "\n\n"
+            review_blog += f"\n\n ### Questions follow \n\n {suggestions} \n\n"
+            final_blog += last_content + "\n\n"
+            example_blog += f"\n\n ### Example \n\n {example_output.content} \n\n"
+    except Exception as e:
+        print(e)
+        
 
     storage.write(BLOG_V1_FILE, first_version)
     storage.write(BLOG_V2_FILE, with_suggestions)
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
+    storage.write(EXAMPLE_FILE, example_blog)
     return final_blog
 
 def enrich_topic(subject:str):
@@ -260,7 +299,9 @@ def generate(subject, load_from, skip_all: bool = True):
             logger.info(storage.workspace)
             return
 
-    references = search_from_topics(subject, output.topics, config, storage, False)
+    # TODO: disable search
+    # references = search_from_topics(subject, output.topics, config, storage, False)
+    references = None
     outline_output = write_outline(subject, references, storage, False,config)
 
     if not skip_all:
@@ -271,7 +312,13 @@ def generate(subject, load_from, skip_all: bool = True):
 
     outline_blog = json.dumps(outline_output.outline)
     blog_content = write_blog(
-        outline_blog, outline_output, references, storage, subject
+        outline_blog=outline_blog,
+        outline_output=outline_output,
+        references=references,
+        storage=storage,
+        subject=subject,
+        use_critique=False,
+        cfg=config
     )
 
     if storage.read(SUGGESTION) != "":

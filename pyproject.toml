@@ -26,7 +26,7 @@ chatgpt-selenium-automation = {git = "https://github.com/Michelangelo27/chatgpt_
 langchain-community = "^0.0.37"
 langchain-text-splitters = "^0.0.1"
 langchain-google-community = "^1.0.3"
-hugchat = "^0.4.5"
+hugchat = "0.4.8"
 
 
 [build-system]

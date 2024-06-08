@@ -5,6 +5,7 @@ from typing import List, Tuple, Dict
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from blog_writer.agents.base import AgentInterface
+from blog_writer.config.config import load_config
 from blog_writer.config.definitions import ROOT_DIR
 from blog_writer.config.logger import logger
 from blog_writer.model.search import SearchResult
@@ -20,7 +21,14 @@ from re_edge_gpt import Chatbot, ImageGen
 from re_edge_gpt import ConversationStyle
 
 
-class ImageGeneratorAgent:
+class ImageGeneratorAgent(AgentInterface):
+    @staticmethod
+    def render_system_message():
+        system_message = SystemMessage(
+            content=load_agent_prompt("image_generator")
+        )
+        return system_message
+    
     @staticmethod
     async def _call_llm(desc: str):
         bot = None
@@ -59,13 +67,29 @@ class ImageGeneratorAgent:
             self,
             desc: str,
     ):
-        self._generate(desc=f"Create image about this description:\n{desc}")
+        # generate new content
+        messages = [
+            self.render_system_message(),
+            HumanMessage(content=f"This is the blog description: {desc}"),
+            HumanMessage(content=f"Please generate idea to create image for this description.")
+        ]
+        
+        idea = f"Create image about this description:\n{desc}"
+        try: 
+            idea = StreamTokenHandler(self.llm)(messages,debug=True)
+            
+        except Exception as e:
+            print(f"Error in generating idea: {e}")
+        
+        self._generate(desc=f"Create image about this description:\n{idea}")
 
 
 if __name__ == "__main__":
     q = """
-    Design Concept: The banner could be a combination of elements that represent Datadog, Node.js, and the concept of navigating pitfalls.
+    This article is a step-by-step guide to mastering end-to-end testing in NestJS applications using TypeScript. It covers the importance of E2E testing, setting up the testing environment, and writing and running E2E tests. The article also provides unique insights into testing scenarios involving PostgreSQL and Redis databases, including the Cache Aside pattern. Whether you're a beginner or an experienced developer, this article offers valuable knowledge and best practices to ensure the reliability and robustness of your NestJS applications.
     """
-    
-    writer_agent = ImageGeneratorAgent()
+    config = load_config()
+    writer_agent = ImageGeneratorAgent(
+        model_config=config.model_config_hf_chat,
+    )
     writer_agent.run(q)

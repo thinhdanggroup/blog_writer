@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Generate image sync
     article_content = """
-    Design Concept:This article provides a step-by-step guide on how to implement user tracking in NestJS applications using DataDog. It covers the basics of NestJS and DataDog, explains the concept of interceptors in NestJS, and shows how to create a custom UserTrackingInterceptor to track user behavior. The guide also covers how to apply and configure the interceptor, test its functionality, and view the tracking data in DataDog. By the end of this article, you will have a comprehensive understanding of user tracking and be able to implement it in your own NestJS applications.
+    This article is a step-by-step guide to mastering end-to-end testing in NestJS applications using TypeScript. It covers the importance of E2E testing, setting up the testing environment, and writing and running E2E tests. The article also provides unique insights into testing scenarios involving PostgreSQL and Redis databases, including the Cache Aside pattern. Whether you're a beginner or an experienced developer, this article offers valuable knowledge and best practices to ensure the reliability and robustness of your NestJS applications.
     """
     desc = f"Create image about this description:\n{article_content}"
     curTime = datetime.now().strftime("%Y%m%d%H%M%S")

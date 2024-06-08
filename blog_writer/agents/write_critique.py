@@ -39,7 +39,8 @@ class WriteCritiqueAgent(AgentInterface):
         content = wrap_text_with_tag(subject, "subject")
 
         # reference docs
-        content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
+        if references is not None:
+            content += wrap_text_with_tag(references.get_minified(), "reference")
 
         # previous content
         content += wrap_text_with_tag(previous_content, "completed_content")

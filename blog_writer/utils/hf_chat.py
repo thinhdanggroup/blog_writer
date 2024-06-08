@@ -76,7 +76,7 @@ class HFChatModel(BaseChatModel):
     def _generate(self, question: str) -> dict:
         # strim mesage if length > 4000
         total_tokens = count_tokens(question)
-        if total_tokens > 4000:
+        if total_tokens > 6000:
             question = question[:10000]
             logger.warning("Message is too long, trimming to 10000 characters")
         return asyncio.run(self._call_llm(question))

@@ -9,6 +9,7 @@ from blog_writer.model.search import SearchResult
 from blog_writer.prompts import load_agent_prompt
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import wrap_text_with_tag
+from blog_writer.utils.llm import count_tokens
 from blog_writer.utils.stream_token_handler import StreamTokenHandler
 
 
@@ -36,18 +37,24 @@ class WriterAgent(AgentInterface):
         content = wrap_text_with_tag(subject, "subject")
 
         # reference docs
-        if references:
-            content += wrap_text_with_tag(json.dumps(references, indent=2, cls=ObjectEncoder), "reference")
-        else:
+        if references and references.strip() != "":
+            content += wrap_text_with_tag(references.get_minified(), "reference")
+        
+        if retrieved_data and retrieved_data.strip() != "":
             content += wrap_text_with_tag(retrieved_data, "reference")
 
         # previous content
-        content += wrap_text_with_tag(previous_content, "previous_content")
+        total_previous_content_tokens = count_tokens(previous_content)
+        if total_previous_content_tokens > 2000:
+            # last 3000 characters
+            compress_previous_content = "...previous content is hide a part  because it is too long .../n" + previous_content[-3000:]
+            content += wrap_text_with_tag(compress_previous_content, "previous_content")
 
         # current session
         content += wrap_text_with_tag(current_session, "title_and_content")
 
-        content += wrap_text_with_tag(suggestions, "suggestions")
+        if suggestions and suggestions.strip() != "":
+            content += wrap_text_with_tag(suggestions, "suggestions")
 
         logger.info("\033[31m****Writer Agent human message****\n%s\033[0m", content)
         return HumanMessage(content=content)
