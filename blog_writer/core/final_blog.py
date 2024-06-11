@@ -22,7 +22,7 @@ header:
     overlay_image: /assets/images/xxx/banner.jpeg
     overlay_filter: 0.5
     teaser: /assets/images/xxx/banner.jpeg
-title: {{title}}
+title: "{{title}}"
 tags:
     - xxx
     - yyy 
@@ -31,17 +31,17 @@ tags:
 
 
 def remove_references(text):
-    return re.sub(r'\[\^.*?\^\]', '', text)
+    return re.sub(r"\[\^.*?\^\]", "", text)
 
 
 def detect_references(text):
-    pattern = r'\[\^.*?\^\]: \[.*?\]\(.*?\)'
+    pattern = r"\[\^.*?\^\]: \[.*?\]\(.*?\)"
     matches = re.findall(pattern, text)
     return matches
 
 
 def extract_reference_details(text):
-    pattern = r'\[\^(.*?)\^\]: \[(.*?)\]\((.*?)\)'
+    pattern = r"\[\^(.*?)\^\]: \[(.*?)\]\((.*?)\)"
     matches = re.findall(pattern, text)
     if len(matches) == 0:
         return None
@@ -55,8 +55,8 @@ def fix_format(storage):
     outline = load_json(o)
 
     final_content = ""
-    
-    final_content += DATA_OUTPUT.replace("{{title}}", outline['title']) + "\n\n"
+
+    final_content += DATA_OUTPUT.replace("{{title}}", outline["title"]) + "\n\n"
     final_content += f"{outline['description']}\n\n"
 
     list_references = set()
@@ -80,7 +80,6 @@ def fix_format(storage):
         final_content += f"- [{v[1]}]({v[2]}) \n"
         update_refs.append(v[2])
 
-    print(final_content)
     return final_content
 
 

@@ -11,6 +11,7 @@ MODEL_GPT_35 = "gpt35-turbo-16k"
 MODEL_NAME = "gemini-pro"
 MODEL_NAME_GEMINI_PRO_15 = "gemini-1.5-pro-latest"
 
+
 class LLMType(StrEnum):
     AZURE = "azure"
     GEMINI = "gemini"
@@ -19,22 +20,32 @@ class LLMType(StrEnum):
     OLLAMA = "ollama"
     HF_CHAT = "hf_chat"
 
+
+# Models: https://openrouter.ai/docs/models
 class OpenRouterModel(Enum):
-    OR_NOUSRESEARCH_NOUS_CAPYBARA_7B_FREE = ("nousresearch/nous-capybara-7b:free",4096)
-    OR_MISTRALAI_MISTRAL_7B_INSTRUCT_FREE = ("mistralai/mistral-7b-instruct:free",32768)
-    OR_GRYPHE_MYTHOMIST_7B_FREE = ("gryphe/mythomist-7b:free",32768)
-    OR_UNDI95_TOPPY_M_7B_FREE = ("undi95/toppy-m-7b:free",4096)
-    OR_GOOGLE_GEMMA_7B_IT_FREE = ("google/gemma-7b-it:free",8000)
-    OR_OPENROUTER_CINEMATIKA_7B_FREE = ("openrouter/cinematika-7b:free",8000)
-    OR_HUGGINGFACEH4_ZEPHYR_7B_BETA_FREE = ("huggingfaceh4/zephyr-7b-beta:free",4096)
-    OR_OPENCHAT_OPENCHAT_7B_FREE = ("openchat/openchat-7b:free",8192)
-    
+    OR_NOUSRESEARCH_NOUS_CAPYBARA_7B_FREE = ("nousresearch/nous-capybara-7b:free", 4096)
+    OR_MISTRALAI_MISTRAL_7B_INSTRUCT_FREE = (
+        "mistralai/mistral-7b-instruct:free",
+        32768,
+    )
+    OR_GRYPHE_MYTHOMIST_7B_FREE = ("gryphe/mythomist-7b:free", 32768)
+    OR_UNDI95_TOPPY_M_7B_FREE = ("undi95/toppy-m-7b:free", 4096)
+    OR_GOOGLE_GEMMA_7B_IT_FREE = ("google/gemma-7b-it:free", 8000)
+    OR_OPENROUTER_CINEMATIKA_7B_FREE = ("openrouter/cinematika-7b:free", 8000)
+    OR_HUGGINGFACEH4_ZEPHYR_7B_BETA_FREE = ("huggingfaceh4/zephyr-7b-beta:free", 4096)
+    OR_OPENCHAT_OPENCHAT_7B_FREE = ("openchat/openchat-7b:free", 8192)
+    PHI_3_MINI = ("microsoft/phi-3-mini-128k-instruct:free", 128000)
+    PHI_3_MEDIUM = ("microsoft/phi-3-medium-128k-instruct:free", 128000)
+    LLAMA_3_8B = ("meta-llama/llama-3-8b-instruct:free", 8192)
+    NOUS_RESEARCH_CAPYBARA_7B = ("nousresearch/nous-capybara-7b:free", 4096)
+
 
 class OllamaModel(Enum):
     MISTRAL = "mistral"
     LLAMA3 = "llama3"
     GEMMA = "gemma"
-    
+
+
 class HFModel(Enum):
     CO_HERE_FOR_AI = "CohereForAI/c4ai-command-r-plus"
     ZEPHYR = "HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1"
@@ -43,4 +54,3 @@ class HFModel(Enum):
     MISTRAL_7B = "mistralai/Mistral-7B-Instruct-v0.2"
     PHI_3_MINI = "microsoft/Phi-3-mini-4k-instruct"
     LLAMA3 = "meta-llama/Meta-Llama-3-70B-Instruct"
-    

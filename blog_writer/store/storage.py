@@ -16,12 +16,15 @@ class Storage:
         self.title_generator = TitleGenerator(
             model_config=config,
         )
+        self.working_name = load_from_workspace
         if load_from_workspace != "":
             self.workspace = f"{ROOT_DIR}/.working_space/{load_from_workspace}"
         else:
+            name = self._get_working_folder(subject)
             self.workspace = (
-                f"{ROOT_DIR}/.working_space/{self._get_working_folder(subject)}"
+                f"{ROOT_DIR}/.working_space/{name}"
             )
+            self.working_name = name
 
     def write(self, file_name: str, content: str):
         write_file(self.workspace + "/" + file_name, content)

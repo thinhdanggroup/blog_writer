@@ -4,8 +4,13 @@ The source of truth is collected from the web. This information is in tag <sourc
 
 Your input has missing concept and questions in tag <concept_and_questions>. Your task is to retrieve relevant content from the web that can help you to answer the questions.
 
-YOUR output should be in the following format:
+YOUR output in JSON format should be in the following format:
 
-- After you receive <concept_and_questions>, you have to rewrite it in your own words
-- Please focus to answer the questions
-- If the <concept_and_questions>, you can use your knowledge to answer the questions
+{
+  "retrieved_content": "content",
+}
+
+With:
+- "content" is the relevant content that you retrieved from the web and you have to rewrite it in your own words.
+
+REMEMBER: You have to return output in JSON format and start with character '{' and end with character '}'.

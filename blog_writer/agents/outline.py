@@ -14,6 +14,8 @@ from blog_writer.utils.text import extract_json_from_markdown, load_json
 
 
 class OutlineAgentOutput:
+    outline = ""
+    
     def __init__(self, answer: str = ""):
         answer = extract_json_from_markdown(answer)
         self.raw_response = answer

@@ -1,10 +1,13 @@
 import json
+
+from pydantic_core import from_json
 from blog_writer.agents.description import DescriptionAgent
 from blog_writer.agents.enrich_topic import EnrichTopic
 
 from blog_writer.agents.enrichment import EnrichmentAgent
 from blog_writer.agents.example_writer import ExampleWriter
 from blog_writer.agents.extract_relevant_search import ExtractRelevantSearchAgent
+from blog_writer.agents.image_generator import ImageGeneratorAgent
 from blog_writer.agents.outline import OutlineAgent, OutlineAgentOutput
 from blog_writer.agents.query_generator import QueryGeneratorAgent
 from blog_writer.agents.reviewer import ReviewAgent
@@ -16,8 +19,16 @@ from blog_writer.agents.write_critique import (
 )
 from blog_writer.agents.writer import WriterAgent
 from blog_writer.config.config import Config, load_config, new_model_config
-from blog_writer.config.definitions import MODEL_NAME_GEMINI_PRO_15, ROOT_DIR, MODEL_NAME, LLMType, OpenRouterModel
+from blog_writer.config.definitions import (
+    MODEL_NAME_GEMINI_PRO_15,
+    ROOT_DIR,
+    MODEL_NAME,
+    LLMType,
+    OllamaModel,
+    OpenRouterModel,
+)
 from blog_writer.config.logger import logger
+from blog_writer.model.data import OutlineModel, StepTracker
 from blog_writer.model.search import SearchResult
 from blog_writer.store.storage import Storage
 from blog_writer.utils.encoder import ObjectEncoder
@@ -33,7 +44,7 @@ OUTLINE_FILE = "outline.json"
 BLOG_V1_FILE = "blog_v1.md"
 BLOG_V2_FILE = "blog_v2.md"
 BLOG_FILE = "blog.md"
-STATUS_TRACKER = "blog_status.json"
+STEP_TRACKER = "step_tracker.json"
 SUBJECT = "subject.md"
 REVIEW_FILE = "review.md"
 EXAMPLE_FILE = "example.md"
@@ -42,7 +53,7 @@ SUGGESTION = "suggestion.json"
 
 
 def generate_topics(
-        topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
+    topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
 ) -> TopicsAgentOutput:
     if debug:
         return TopicsAgentOutput(
@@ -69,7 +80,7 @@ def generate_topics(
 
 
 def search_from_topics(
-        subject: str, topics: dict, config: Config, storage, debug: bool = False
+    subject: str, topics: dict, config: Config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
         config.model_config_hf_chat, config.web_search, config.web_extractor
@@ -86,7 +97,7 @@ def search_from_topics(
         return json.loads(read_file(f"{ROOT_DIR}/data/example_search.json"))
 
     if storage.read(SEARCH_FILE) != "":
-        
+
         result = SearchResult()
         result.load_from_json(storage.read(SEARCH_FILE))
         return result
@@ -106,14 +117,18 @@ def search_from_topics(
 
 
 def write_outline(
-        subject: str, references: SearchResult, storage, debug: bool = False,config: Config = None
-) -> OutlineAgentOutput:
+    subject: str,
+    references: SearchResult,
+    storage,
+    debug: bool = False,
+    config: Config = None,
+) -> OutlineModel:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
     if storage.read(OUTLINE_FILE) != "":
         data = storage.read(OUTLINE_FILE)
-        return OutlineAgentOutput(answer=data)
+        return OutlineModel.model_validate(from_json(data))
 
     stream_callback = StreamConsoleCallbackManager()
     model_config = new_model_config(MODEL_NAME)
@@ -124,30 +139,34 @@ def write_outline(
     )
 
     output = outline_agent.run(subject, references)
-    
+
     description_agent = DescriptionAgent(
         model_config=config.model_config_hf_chat,
         stream_callback_manager=stream_callback,
         temperature=0.1,
     )
-    
+
     desc_output = description_agent.run(subject, output.raw_response)
-    
+
     result = json.loads(output.raw_response)
     result["title"] = desc_output.title
     result["description"] = desc_output.description
-    
+
     storage.write(OUTLINE_FILE, json.dumps(result, cls=ObjectEncoder))
-    return output
+    return OutlineModel(
+        title=desc_output.title,
+        description=desc_output.description,
+        outline=output.outline,
+    )
 
 
 def critique(
-        subject: str,
-        outline: str,
-        completed_part: str,
-        current_part: str,
-        references: SearchResult,
-        debug: bool = False,
+    subject: str,
+    outline: str,
+    completed_part: str,
+    current_part: str,
+    references: SearchResult,
+    debug: bool = False,
 ) -> WriteCritiqueAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
@@ -167,44 +186,52 @@ def critique(
 
 
 def write_blog(
-        outline_blog,
-        outline_output,
-        references: SearchResult,
-        storage,
-        subject,
-        use_critique: bool = False,
-        cfg: Config = None
+    outline_blog,
+    outline_output,
+    references: SearchResult,
+    storage: Storage,
+    subject,
+    use_critique: bool = False,
+    cfg: Config = None,
 ) -> str:
     blog_content = storage.read(BLOG_FILE)
     if blog_content != "":
         return blog_content
-    write_config = new_model_config(MODEL_NAME)
+    # write_config = new_model_config(
+    #     OpenRouterModel.OR_GOOGLE_GEMMA_7B_IT_FREE.value[0], LLMType.OPEN_ROUTER
+    # )
+
+    write_config = cfg.model_config_hf_chat
+
+    # write_config = new_model_config(OllamaModel.LLAMA3.value, LLMType.OLLAMA)
+
+    # write_config = new_model_config(MODEL_NAME, LLMType.GEMINI)
     writer_agent = WriterAgent(
-        model_config=cfg.model_config_hf_chat,
+        model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
-    
+
     write_with_review = WriterAgent(
-        model_config=cfg.model_config_hf_chat,
+        model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
-    
+
     review_agent = ReviewAgent(
         model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
-    
+
     extract_relevant_search_agent = ExtractRelevantSearchAgent(
         model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
-    
+
     example_writer = ExampleWriter(
-        model_config=cfg.model_config_hf_chat,
+        model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.1,
     )
@@ -216,18 +243,35 @@ def write_blog(
     final_blog = ""
     review_blog = ""
     example_blog = ""
-    
+
     # TODO: remove
-    
+
     references = None
+    tracker = StepTracker()
+
+    try:
+        prev_track_record = storage.read(STEP_TRACKER)
+        if prev_track_record and prev_track_record.strip() != "":
+            tracker = StepTracker.model_validate(from_json(prev_track_record))
+    except Exception as e:
+        logger.error(f"Fail to track {e}")
+
     idx = 0
-    
     try:
         for o in outline_output.outline:
+            if idx <= tracker.current_step:
+                logger.info(f"Skip session has header {o['header']}")
+                idx += 1
+                continue
+
             suggestions = ""
             cur_section = f"Header: {o['header']} \n Your content of this section must be written about {o['short_description']}"
             out_content = writer_agent.run(
-                topic=subject, references=references, previous_content=final_blog, current_session=cur_section, suggestions=suggestions
+                topic=subject,
+                references=references,
+                previous_content=final_blog,
+                current_session=cur_section,
+                suggestions=suggestions,
             )
             last_content = out_content.content
             first_version += last_content + "\n\n"
@@ -238,35 +282,41 @@ def write_blog(
             review_blog += f"\n\n ## {o['header']} \n\n {review_output.review_msg} \n\n"
 
             extracted_output = extract_relevant_search_agent.run(
-                purpose=cur_section, references=references, need_to_retrieve=review_output.review_msg
+                purpose=cur_section,
+                references=references,
+                need_to_retrieve=review_output.review_msg,
             )
 
             # run with suggestions
             out_content = write_with_review.run(
-                topic=subject, previous_content=final_blog, current_session=cur_section, suggestions=suggestions, retrieved_data=extracted_output.content,
+                topic=subject,
+                previous_content=final_blog,
+                current_session=cur_section,
+                suggestions=suggestions,
+                retrieved_data=extracted_output.content,
             )
             last_content = out_content.content
-            
+
             # TODO: enrichment is stop because Bingchat is not working
             # enrichment_output = enrichment.run(
             #     section_topic=cur_section, current_content=last_content
             # )
             # last_content = enrichment_output.content
-            
-            # generate example 
-            example_output = example_writer.run(
-                content=last_content
-            )
-            
+
+            # generate example
+            example_output = example_writer.run(content=last_content)
+
             # final result
             with_suggestions += last_content + "\n\n"
             review_blog += f"\n\n ### Questions follow \n\n {suggestions} \n\n"
             final_blog += last_content + "\n\n"
-            example_blog += f"\n\n ### Example \n\n {example_output.content} \n\n"
+            example_blog += f"\n\n### Example \n\n {o['header']} \n\n======= \n\n {example_output.content}\n\n======= \n\n"
+            tracker.current_step = idx
+            idx += 1
     except Exception as e:
-        print(e)
-        
+        logger.error(e)
 
+    storage.write(STEP_TRACKER, tracker.model_dump_json())
     storage.write(BLOG_V1_FILE, first_version)
     storage.write(BLOG_V2_FILE, with_suggestions)
     storage.write(BLOG_FILE, final_blog)
@@ -274,7 +324,8 @@ def write_blog(
     storage.write(EXAMPLE_FILE, example_blog)
     return final_blog
 
-def enrich_topic(subject:str):
+
+def enrich_topic(subject: str):
     config = new_model_config(LLMType.BING_CHAT, LLMType.BING_CHAT)
     enrichTopicAgent = EnrichTopic(
         model_config=config,
@@ -282,14 +333,14 @@ def enrich_topic(subject:str):
     output = enrichTopicAgent.run(subject=subject)
     return output.answer
 
+
 def generate(subject, load_from, skip_all: bool = True):
     config = load_config()
     subject = subject.strip()
-    # if load_from == "":
-        # subject = enrich_topic(subject)
-    
+    # subject = enrich_topic(subject)
+
     storage = Storage(subject, load_from_workspace=load_from)
-    
+
     storage.write(SUBJECT, subject)
 
     output = generate_topics(subject, storage, 5, 10, False)
@@ -302,7 +353,9 @@ def generate(subject, load_from, skip_all: bool = True):
     # TODO: disable search
     # references = search_from_topics(subject, output.topics, config, storage, False)
     references = None
-    outline_output = write_outline(subject, references, storage, False,config)
+    outline_output: OutlineModel = write_outline(
+        subject, references, storage, False, config
+    )
 
     if not skip_all:
         continue_ok = input("Outline: Press Enter to continue...")
@@ -318,7 +371,7 @@ def generate(subject, load_from, skip_all: bool = True):
         storage=storage,
         subject=subject,
         use_critique=False,
-        cfg=config
+        cfg=config,
     )
 
     if storage.read(SUGGESTION) != "":
@@ -336,12 +389,14 @@ def generate(subject, load_from, skip_all: bool = True):
 
     storage.write(FINAL_BLOG_FILE, fix_format(storage))
 
-    # critiq = critique(subject, outline_blog, "", blog_content, SearchResult(), False)
-    # if critiq.success:
-    #     logger.info("Blog is ready to publish")
-    # else:
-    #     logger.info("Blog is not ready to publish")
-    #     logger.info(critiq.critique)
+    isGenImage = input("Generate image? y/n: ")
+    if isGenImage == "y":
+        logger.info("Start generate image")
+        image_generate_agent = ImageGeneratorAgent(
+            model_config=config.model_config_gemini,
+        )
+        image_generate_agent.run(outline_output.description, storage.working_name)
+        logger.info("Gen image done")
 
 
 if __name__ == "__main__":

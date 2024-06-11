@@ -1,10 +1,11 @@
 """Configuration class to store the state of bools for different scripts access."""
+
 import os
 from typing import Any
 
 from dotenv import load_dotenv
 
-from blog_writer.config.definitions import  ROOT_DIR, MODEL_GPT_35, LLMType
+from blog_writer.config.definitions import ROOT_DIR, MODEL_GPT_35, LLMType
 
 
 def get_bool(raw: Any, default: bool = False) -> bool:
@@ -15,12 +16,12 @@ class ModelConfig:
     def __init__(self, llm_type: str = "azure"):
         self.llm_type = llm_type
         prefix = llm_type.upper() + "_"
-        self.deployment = os.getenv(prefix+"MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
-        self.version = os.getenv(prefix+"MODEL_CONFIG_VERSION")
-        self.base = os.getenv(prefix+"MODEL_CONFIG_BASE")
-        self.username = os.getenv(prefix+"MODEL_CONFIG_USERNAME","")
-        self._key1 = os.getenv(prefix+"MODEL_CONFIG_KEY")
-        self._key2 = os.getenv(prefix+"MODEL_CONFIG_KEY2", self._key1)
+        self.deployment = os.getenv(prefix + "MODEL_CONFIG_DEPLOYMENT", MODEL_GPT_35)
+        self.version = os.getenv(prefix + "MODEL_CONFIG_VERSION")
+        self.base = os.getenv(prefix + "MODEL_CONFIG_BASE")
+        self.username = os.getenv(prefix + "MODEL_CONFIG_USERNAME", "")
+        self._key1 = os.getenv(prefix + "MODEL_CONFIG_KEY")
+        self._key2 = os.getenv(prefix + "MODEL_CONFIG_KEY2", self._key1)
         self._keys = [self._key1, self._key2]
         self._current_index = 0
 
@@ -30,8 +31,17 @@ class ModelConfig:
         self._current_index = (self._current_index + 1) % len(self._keys)
         return current_key
 
+    def model_dump(self):
+        return {
+            "llm_type": self.llm_type,
+            "deployment": self.deployment,
+            "version": self.version,
+            "base": self.base,
+            "username": self.username,
+        }
 
-def new_model_config(deployment:str, llm_type:str = LLMType.GEMINI ) -> ModelConfig:
+
+def new_model_config(deployment: str, llm_type: str = LLMType.GEMINI) -> ModelConfig:
     cfg = ModelConfig(llm_type=llm_type)
     cfg.deployment = deployment
     return cfg

@@ -19,6 +19,7 @@ def test_generate_image_sync(name, desc):
     for i, image_url in enumerate(image_list):
         sync_gen.save_images([image_url], test_output_dir, file_name=f"{name}_{i}")
 
+
 if __name__ == "__main__":
     # Make dir to save image
     Path(test_output_dir).mkdir(exist_ok=True)
@@ -29,4 +30,4 @@ if __name__ == "__main__":
     """
     desc = f"Create image about this description:\n{article_content}"
     curTime = datetime.now().strftime("%Y%m%d%H%M%S")
-    test_generate_image_sync(curTime,desc)
+    test_generate_image_sync(curTime, desc)

@@ -13,5 +13,7 @@
 			"path": "../../thinhda_dev_blog"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"editor.formatOnSave": true
+	}
 }
