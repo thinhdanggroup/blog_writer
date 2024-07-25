@@ -203,6 +203,11 @@ def write_blog(
 
     write_config = cfg.model_config_hf_chat
 
+    # write_config = new_model_config(
+    #     OpenRouterModel.PHI_3_MEDIUM.value[0],
+    #     LLMType.OPEN_ROUTER,
+    # )
+
     # write_config = new_model_config(OllamaModel.LLAMA3.value, LLMType.OLLAMA)
 
     # write_config = new_model_config(MODEL_NAME, LLMType.GEMINI)

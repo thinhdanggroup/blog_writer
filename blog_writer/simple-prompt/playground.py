@@ -51,11 +51,11 @@ def main():
         # "gemini-pro",
         # LLMType.GEMINI,
         # open router
-        # OpenRouterModel.PHI_3_MEDIUM.value[0],
-        # LLMType.OPEN_ROUTER,
+        OpenRouterModel.PHI_3_MEDIUM.value[0],
+        LLMType.OPEN_ROUTER,
         # bing
-        LLMType.BING_CHAT,
-        LLMType.BING_CHAT,
+        # LLMType.BING_CHAT,
+        # LLMType.BING_CHAT,
     )
     llm = create_chat_model(
         model_config=config,
