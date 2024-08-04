@@ -71,3 +71,97 @@ class TopicAgent(AgentInterface):
         content = StreamTokenHandler(self.llm)(messages)
         ai_message = f"{content}\n"
         return TopicsAgentOutput(ai_message)
+
+
+def main():
+    data = """
+    {
+    "topics": [
+        {
+            "topic": "Creative Coding Projects",
+            "subtopics": [
+                "What are some unique coding projects that can be completed in a weekend?",
+                "How to create interactive art using code?",
+                "What are some examples of creative coding projects that have gone viral?",
+                "How to use machine learning to generate art?",
+                "What are some resources for learning creative coding?",
+                "How to create a generative music system using code?",
+                "What are some examples of creative coding projects that have been used in advertising?",
+                "How to create a interactive story using code?",
+                "What are some tools and libraries for creative coding?",
+                "How to create a creative coding project for a non-technical audience?"
+            ],
+            "keywords": "creative coding, coding projects, interactive art, machine learning, generative art, music generation"
+        },
+        {
+            "topic": "Innovative Uses of Emerging Technologies",
+            "subtopics": [
+                "What are some innovative uses of augmented reality?",
+                "How to use blockchain technology to create a secure and transparent system?",
+                "What are some examples of innovative uses of artificial intelligence?",
+                "How to use the Internet of Things (IoT) to create a smart home?",
+                "What are some innovative uses of 3D printing?",
+                "How to use virtual reality to create an immersive experience?",
+                "What are some examples of innovative uses of natural language processing?",
+                "How to use computer vision to create a surveillance system?",
+                "What are some innovative uses of robotics?",
+                "How to use edge computing to create a real-time analytics system?"
+            ],
+            "keywords": "emerging technologies, innovation, augmented reality, blockchain, artificial intelligence, IoT, 3D printing, virtual reality"
+        },
+        {
+            "topic": "Cool Tools and Libraries for Developers",
+            "subtopics": [
+                "What are some cool tools for debugging code?",
+                "How to use a code generator to speed up development?",
+                "What are some examples of cool libraries for data visualization?",
+                "How to use a package manager to manage dependencies?",
+                "What are some cool tools for testing code?",
+                "How to use a code formatter to improve code readability?",
+                "What are some examples of cool libraries for machine learning?",
+                "How to use a code linter to improve code quality?",
+                "What are some cool tools for collaboration?",
+                "How to use a version control system to manage code changes?"
+            ],
+            "keywords": "developer tools, libraries, debugging, code generation, data visualization, package management, testing, code formatting"
+        },
+        {
+            "topic": "Unique Applications of Machine Learning",
+            "subtopics": [
+                "What are some unique applications of machine learning in healthcare?",
+                "How to use machine learning to predict stock prices?",
+                "What are some examples of unique applications of machine learning in finance?",
+                "How to use machine learning to create a chatbot?",
+                "What are some unique applications of machine learning in education?",
+                "How to use machine learning to create a recommendation system?",
+                "What are some examples of unique applications of machine learning in marketing?",
+                "How to use machine learning to create a predictive maintenance system?",
+                "What are some unique applications of machine learning in environmental science?",
+                "How to use machine learning to create a sentiment analysis system?"
+            ],
+            "keywords": "machine learning, applications, healthcare, finance, education, chatbots, recommendation systems, predictive maintenance"
+        },
+        {
+            "topic": "DIY Electronics and Robotics Projects",
+            "subtopics": [
+                "What are some DIY electronics projects for beginners?",
+                "How to create a robot using Arduino?",
+                "What are some examples of DIY electronics projects using Raspberry Pi?",
+                "How to create a home automation system using DIY electronics?",
+                "What are some DIY robotics projects using LEGO Mindstorms?",
+                "How to create a DIY drone using Arduino?",
+                "What are some examples of DIY electronics projects using ESP32?",
+                "How to create a DIY weather station using Arduino?",
+                "What are some DIY robotics projects using Python?",
+                "How to create a DIY security system using DIY electronics?"
+            ],
+            "keywords": "DIY electronics, robotics, Arduino, Raspberry Pi, home automation, LEGO Mindstorms, drones, ESP32, weather stations, security systems"
+        }
+    ]
+}
+    """
+    
+    print(TopicsAgentOutput(data).topics)
+    
+if __name__ == "__main__":
+    main()

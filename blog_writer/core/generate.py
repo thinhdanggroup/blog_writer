@@ -53,7 +53,12 @@ SUGGESTION = "suggestion.json"
 
 
 def generate_topics(
-    topic: str, storage, no_topics: int = 5, no_subtopics: int = 5, debug: bool = False
+    topic: str,
+    storage,
+    no_topics: int = 5,
+    no_subtopics: int = 5,
+    debug: bool = False,
+    config: Config = None,
 ) -> TopicsAgentOutput:
     if debug:
         return TopicsAgentOutput(
@@ -67,7 +72,8 @@ def generate_topics(
 
     stream_callback = StreamConsoleCallbackManager()
     # model_config = new_model_config("mistralai/mistral-7b-instruct:free", llm_type=LLMType.OPEN_ROUTER)
-    model_config = new_model_config("gemini-1.5-pro-latest", llm_type=LLMType.GEMINI)
+    # model_config = new_model_config("gemini-1.5-pro-latest", llm_type=LLMType.GEMINI)
+    model_config = config.model_config_hf_chat
     topic_agent = TopicAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
@@ -86,7 +92,7 @@ def search_from_topics(
         config.model_config_hf_chat, config.web_search, config.web_extractor
     )
 
-    model_config = new_model_config(MODEL_NAME)
+    model_config = config.model_config_hf_chat
     query_agent = QueryGeneratorAgent(
         model_config=model_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
@@ -131,7 +137,7 @@ def write_outline(
         return OutlineModel.model_validate(from_json(data))
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config(MODEL_NAME)
+    model_config = config.model_config_hf_chat
     outline_agent = OutlineAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
@@ -167,12 +173,13 @@ def critique(
     current_part: str,
     references: SearchResult,
     debug: bool = False,
+    config: Config = None,
 ) -> WriteCritiqueAgentOutput:
     if debug:
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = new_model_config(MODEL_NAME)
+    model_config = config.model_config_hf_chat
     writer_agent = WriteCritiqueAgent(
         model_config=model_config,
         stream_callback_manager=stream_callback,
@@ -348,7 +355,7 @@ def generate(subject, load_from, skip_all: bool = True):
 
     storage.write(SUBJECT, subject)
 
-    output = generate_topics(subject, storage, 5, 10, False)
+    output = generate_topics(subject, storage, 5, 10, False, config)
     if not skip_all:
         continue_ok = input("Search: Press Enter to continue...")
         if continue_ok != "y":
@@ -382,7 +389,7 @@ def generate(subject, load_from, skip_all: bool = True):
     if storage.read(SUGGESTION) != "":
         logger.info("Suggestion already generated")
     else:
-        write_config = new_model_config(MODEL_NAME)
+        write_config = config.model_config_hf_chat
         suggest_agent = SuggestionAgent(
             model_config=write_config,
             stream_callback_manager=StreamConsoleCallbackManager(),
@@ -398,7 +405,7 @@ def generate(subject, load_from, skip_all: bool = True):
     if isGenImage == "y":
         logger.info("Start generate image")
         image_generate_agent = ImageGeneratorAgent(
-            model_config=config.model_config_gemini,
+            model_config=config.model_config_hf_chat,
         )
         image_generate_agent.run(outline_output.description, storage.working_name)
         logger.info("Gen image done")

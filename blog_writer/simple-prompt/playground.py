@@ -34,7 +34,7 @@ def main():
         print(f"{i + 1}. {usecase}")
 
     # hardcode
-    default_select = 2
+    default_select = 1
     if default_select == 0:
         selected = int(input("Enter a number: "))
     else:

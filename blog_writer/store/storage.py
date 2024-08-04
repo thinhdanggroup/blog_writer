@@ -1,7 +1,7 @@
 from datetime import datetime
 import re
 from blog_writer.agents.title_generator import TitleGenerator
-from blog_writer.config.config import new_model_config
+from blog_writer.config.config import ModelConfig, new_model_config
 
 from blog_writer.config.definitions import ROOT_DIR, LLMType, OpenRouterModel
 from blog_writer.utils.file import write_file, read_file
@@ -9,10 +9,7 @@ from blog_writer.utils.file import write_file, read_file
 
 class Storage:
     def __init__(self, subject: str, load_from_workspace: str = ""):
-        config = new_model_config(
-            OpenRouterModel.OR_MISTRALAI_MISTRAL_7B_INSTRUCT_FREE.value[0],
-            LLMType.OPEN_ROUTER,
-        )
+        config = ModelConfig(llm_type=LLMType.HF_CHAT)
         self.title_generator = TitleGenerator(
             model_config=config,
         )

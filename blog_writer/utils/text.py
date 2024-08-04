@@ -16,6 +16,7 @@ def load_json(data: str, throw_if_err: bool = False) -> dict:
     """
     try:
         json_data = extract_json_from_markdown(data)
+        json_data = ignore_first_path(json_data)
         data = json.loads(json_data)
         return data
     except json.JSONDecodeError as e:
@@ -62,6 +63,15 @@ def extract_json_from_markdown(data: str) -> str:
         val = re.findall(r'```(.*?)```', data, re.DOTALL)
 
     return val[0] if val else data
+
+def ignore_first_path(data: str) -> str:
+    if data.startswith("{"):
+        return data
+    
+    # get data from first { to last }
+    start = data.find("{")
+    end = data.rfind("}")
+    return data[start:end+1]
 
 def count_tokens(tokens: str) -> int:
     enc = tiktoken.encoding_for_model("gpt-4")
