@@ -1,9 +1,11 @@
 import asyncio
 import json
+import logging
 from typing import List
 from pydantic import BaseModel
 
 from re_edge_gpt import Chatbot, ConversationStyle
+from tenacity import retry, stop_after_attempt, wait_fixed, wait_random, before_log
 
 from blog_writer.config.config import load_config
 from blog_writer.config.logger import logger
@@ -54,7 +56,12 @@ class HFChatModel(BaseChatModel):
 
         self.chatbot = chatbot
 
-    async def _call_llm(self, question: str) -> dict:
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_fixed(10) + wait_random(0, 2),
+        before=before_log(logger, logging.INFO),
+    )
+    async def _call_llm(self, question: str, debug=True) -> dict:
         conv = self.chatbot.new_conversation(
             switch_to=True
         )  # switch to the new conversation
@@ -62,11 +69,13 @@ class HFChatModel(BaseChatModel):
 
         response_llm = ""
 
-        for resp in self.chatbot.query(question, stream=True):
+        for resp in self.chatbot.chat(question, stream=True):
             if resp is None:
                 break
 
             if "token" in resp:
+                if debug:
+                    print(resp["token"], end="")
                 response_llm += resp["token"]
 
         return {
@@ -82,8 +91,8 @@ class HFChatModel(BaseChatModel):
         return asyncio.run(self._call_llm(question))
 
     def stream(
-        self,
-        messages: List[BaseMessage],
+            self,
+            messages: List[BaseMessage],
     ) -> List[ResponseMessage]:
         human_message = ""
         for message in messages:

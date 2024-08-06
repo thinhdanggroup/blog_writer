@@ -269,6 +269,7 @@ def write_blog(
         logger.error(f"Fail to track {e}")
 
     idx = 0
+    has_ex = False
     try:
         for o in outline_output.outline:
             if idx <= tracker.current_step:
@@ -327,13 +328,18 @@ def write_blog(
             idx += 1
     except Exception as e:
         logger.error(e)
+        has_ex = True
 
     storage.write(STEP_TRACKER, tracker.model_dump_json())
+    if has_ex:
+        raise Exception("Error in writing blog")
+
     storage.write(BLOG_V1_FILE, first_version)
     storage.write(BLOG_V2_FILE, with_suggestions)
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
     storage.write(EXAMPLE_FILE, example_blog)
+
     return final_blog
 
 
