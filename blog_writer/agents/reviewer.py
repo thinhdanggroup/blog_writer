@@ -49,6 +49,6 @@ class ReviewAgent(AgentInterface):
             self.render_system_message(),
             human_message,
         ]
-        content = StreamTokenHandler(self.llm)(messages)
+        content = self.call_llm(messages)
         ai_message = f"{content}\n"
         return ReviewAgentOutput(ai_message)

@@ -19,6 +19,7 @@ from tenacity import (
     wait_random_exponential,
 )
 from blog_writer.utils.hf_chat import HFChatModel
+from blog_writer.utils.ts_chat import TSChatModel
 
 
 @retry(
@@ -78,6 +79,8 @@ def create_chat_model(
             return Ollama(model=model_config.deployment)
         elif model_config.llm_type == LLMType.HF_CHAT:
             return HFChatModel(model_name=model_config.deployment)
+        elif model_config.llm_type == LLMType.TS_CHAT:
+            return TSChatModel(model_name=model_config.deployment)
         else:
             return ChatGoogleGenerativeAI(
                 google_api_key=model_config.key,

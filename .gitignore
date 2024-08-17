@@ -168,3 +168,4 @@ data/bing_cookies.json
 logs/*
 data/bing_cookies.txt
 data/hf_cookies
+data/ts_cookies.json

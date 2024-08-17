@@ -2,7 +2,7 @@ Your task is write simple sentence to describe the following data. The data is p
 
 Please read <message> and write a simple sentence to describe the data. The describe should be short and easy to understand, and no more than 5 words.
 
-Your answer in JSON format, donot add ```json``` in your answer.:
+Your answer in JSON format, remember add ```json``` in your answer, if you want to add new line, please use \n:
 
 ```json
 {
@@ -17,3 +17,5 @@ Example:
     "description": "The blog about different fruits."
 }
 ```
+
+Please generate the output in correct JSON format.

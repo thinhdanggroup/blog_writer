@@ -44,6 +44,6 @@ class ExampleWriter(AgentInterface):
             human_message,
         ]
 
-        content = StreamTokenHandler(self.llm)(messages,debug=True)
+        content = self.call_llm(messages)
         ai_message = f"{content}\n"
         return ExampleWriterOutput(ai_message)

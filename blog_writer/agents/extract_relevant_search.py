@@ -67,6 +67,6 @@ class ExtractRelevantSearchAgent(AgentInterface):
             human_message,
         ]
 
-        content = StreamTokenHandler(self.llm)(messages)
+        content = self.call_llm(messages)
         ai_message = f"{content}\n"
         return ExtractRelevantSearchOutput(ai_message)

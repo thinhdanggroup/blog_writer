@@ -102,6 +102,6 @@ if __name__ == "__main__":
     """
     config = load_config()
     writer_agent = ImageGeneratorAgent(
-        model_config=config.model_config_hf_chat,
+        model_config=config.model_config_ollama,
     )
     writer_agent.run(q)

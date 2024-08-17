@@ -26,6 +26,7 @@ from blog_writer.config.definitions import (
     LLMType,
     OllamaModel,
     OpenRouterModel,
+    TSModel,
 )
 from blog_writer.config.logger import logger
 from blog_writer.model.data import OutlineModel, StepTracker
@@ -51,6 +52,21 @@ EXAMPLE_FILE = "example.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 
+config = load_config()
+
+model_config_map = {
+    "topic": config.model_config_ts_chat,
+    "query_generator": config.model_config_ts_chat,
+    "web_search": config.model_config_ts_chat,
+    "outline": config.model_config_ts_chat,
+    "description": config.model_config_ts_chat,
+    "write_critique": config.model_config_ts_chat,
+    "write_config": config.model_config_ts_chat,
+    "write_fallback_config": config.model_config_ollama,
+    "enrich": config.model_config_ts_chat,
+    "suggest": config.model_config_ts_chat,
+}
+
 
 def generate_topics(
     topic: str,
@@ -73,9 +89,8 @@ def generate_topics(
     stream_callback = StreamConsoleCallbackManager()
     # model_config = new_model_config("mistralai/mistral-7b-instruct:free", llm_type=LLMType.OPEN_ROUTER)
     # model_config = new_model_config("gemini-1.5-pro-latest", llm_type=LLMType.GEMINI)
-    model_config = config.model_config_hf_chat
     topic_agent = TopicAgent(
-        model_config=model_config,
+        model_config=model_config_map["topic"],
         stream_callback_manager=stream_callback,
         temperature=0.5,
     )
@@ -89,12 +104,11 @@ def search_from_topics(
     subject: str, topics: dict, config: Config, storage, debug: bool = False
 ) -> SearchResult:
     web_scarper = WebScraper(
-        config.model_config_hf_chat, config.web_search, config.web_extractor
+        model_config_map["web_search"], config.web_search, config.web_extractor
     )
 
-    model_config = config.model_config_hf_chat
     query_agent = QueryGeneratorAgent(
-        model_config=model_config,
+        model_config=model_config_map["query_generator"],
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
     )
@@ -137,9 +151,8 @@ def write_outline(
         return OutlineModel.model_validate(from_json(data))
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = config.model_config_hf_chat
     outline_agent = OutlineAgent(
-        model_config=model_config,
+        model_config=model_config_map["outline"],
         stream_callback_manager=stream_callback,
         temperature=0.1,
     )
@@ -147,7 +160,7 @@ def write_outline(
     output = outline_agent.run(subject, references)
 
     description_agent = DescriptionAgent(
-        model_config=config.model_config_hf_chat,
+        model_config=model_config_map["description"],
         stream_callback_manager=stream_callback,
         temperature=0.1,
     )
@@ -179,9 +192,8 @@ def critique(
         return read_file(f"{ROOT_DIR}/data/example_writer.txt")
 
     stream_callback = StreamConsoleCallbackManager()
-    model_config = config.model_config_hf_chat
     writer_agent = WriteCritiqueAgent(
-        model_config=model_config,
+        model_config=model_config_map["write_critique"],
         stream_callback_manager=stream_callback,
         temperature=0.2,
     )
@@ -208,7 +220,8 @@ def write_blog(
     #     OpenRouterModel.OR_GOOGLE_GEMMA_7B_IT_FREE.value[0], LLMType.OPEN_ROUTER
     # )
 
-    write_config = cfg.model_config_hf_chat
+    write_config = model_config_map["write_config"]
+    write_fallback_config = model_config_map["write_fallback_config"]
 
     # write_config = new_model_config(
     #     OpenRouterModel.PHI_3_MEDIUM.value[0],
@@ -220,35 +233,42 @@ def write_blog(
     # write_config = new_model_config(MODEL_NAME, LLMType.GEMINI)
     writer_agent = WriterAgent(
         model_config=write_config,
+        fallback_model_config=write_fallback_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
+        debug=True,
     )
 
     write_with_review = WriterAgent(
         model_config=write_config,
+        fallback_model_config=write_fallback_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
+        debug=True,
     )
 
     review_agent = ReviewAgent(
         model_config=write_config,
+        fallback_model_config=write_fallback_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
+        debug=True,
     )
 
     extract_relevant_search_agent = ExtractRelevantSearchAgent(
         model_config=write_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.5,
+        debug=True,
     )
 
     example_writer = ExampleWriter(
         model_config=write_config,
+        fallback_model_config=write_fallback_config,
         stream_callback_manager=StreamConsoleCallbackManager(),
         temperature=0.1,
+        debug=True,
     )
-
-    enrichment = EnrichmentAgent()
 
     first_version = ""
     with_suggestions = ""
@@ -331,22 +351,21 @@ def write_blog(
         has_ex = True
 
     storage.write(STEP_TRACKER, tracker.model_dump_json())
-    if has_ex:
-        raise Exception("Error in writing blog")
-
     storage.write(BLOG_V1_FILE, first_version)
     storage.write(BLOG_V2_FILE, with_suggestions)
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
     storage.write(EXAMPLE_FILE, example_blog)
 
+    if has_ex:
+        logger.error(f"Fail to write blog at step {tracker.current_step}")
+
     return final_blog
 
 
 def enrich_topic(subject: str):
-    config = new_model_config(LLMType.BING_CHAT, LLMType.BING_CHAT)
     enrichTopicAgent = EnrichTopic(
-        model_config=config,
+        model_config=model_config_map["enrich"],
     )
     output = enrichTopicAgent.run(subject=subject)
     return output.answer
@@ -357,7 +376,9 @@ def generate(subject, load_from, skip_all: bool = True):
     subject = subject.strip()
     # subject = enrich_topic(subject)
 
-    storage = Storage(subject, load_from_workspace=load_from)
+    storage = Storage(
+        subject, load_from_workspace=load_from, model_config=model_config_map["topic"]
+    )
 
     storage.write(SUBJECT, subject)
 
@@ -395,9 +416,8 @@ def generate(subject, load_from, skip_all: bool = True):
     if storage.read(SUGGESTION) != "":
         logger.info("Suggestion already generated")
     else:
-        write_config = config.model_config_hf_chat
         suggest_agent = SuggestionAgent(
-            model_config=write_config,
+            model_config=model_config_map["suggest"],
             stream_callback_manager=StreamConsoleCallbackManager(),
             temperature=0.1,
         )
@@ -411,7 +431,7 @@ def generate(subject, load_from, skip_all: bool = True):
     if isGenImage == "y":
         logger.info("Start generate image")
         image_generate_agent = ImageGeneratorAgent(
-            model_config=config.model_config_hf_chat,
+            model_config=config.model_config_ollama,
         )
         image_generate_agent.run(outline_output.description, storage.working_name)
         logger.info("Gen image done")

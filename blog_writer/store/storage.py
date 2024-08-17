@@ -8,19 +8,22 @@ from blog_writer.utils.file import write_file, read_file
 
 
 class Storage:
-    def __init__(self, subject: str, load_from_workspace: str = ""):
-        config = ModelConfig(llm_type=LLMType.HF_CHAT)
-        self.title_generator = TitleGenerator(
-            model_config=config,
-        )
+    def __init__(
+        self,
+        subject: str,
+        load_from_workspace: str = "",
+        model_config: ModelConfig = None,
+    ):
+        if model_config is not None:
+            self.title_generator = TitleGenerator(
+                model_config=model_config,
+            )
         self.working_name = load_from_workspace
         if load_from_workspace != "":
             self.workspace = f"{ROOT_DIR}/.working_space/{load_from_workspace}"
         else:
             name = self._get_working_folder(subject)
-            self.workspace = (
-                f"{ROOT_DIR}/.working_space/{name}"
-            )
+            self.workspace = f"{ROOT_DIR}/.working_space/{name}"
             self.working_name = name
 
     def write(self, file_name: str, content: str):

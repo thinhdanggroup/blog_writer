@@ -1,7 +1,9 @@
 import contextvars
 import logging
 import os
-from datetime import datetime 
+from datetime import datetime
+
+from blog_writer.config.definitions import ROOT_DIR
 
 request_id_context = contextvars.ContextVar("request_id")
 
@@ -9,8 +11,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 dt = datetime.now()
-unique_time = dt.strftime('%y%m%d%H%M%S')
-file_handler = logging.FileHandler(f"logs/{unique_time}_logs.txt")
+unique_time = dt.strftime("%y%m%d%H%M%S")
+file_handler = logging.FileHandler(f"{ROOT_DIR}/logs/{unique_time}_logs.txt")
 file_formatter = logging.Formatter(
     fmt="%(asctime)s :: %(filename)-20s :: %(levelname)-6s :: %(lineno)-6s :: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",

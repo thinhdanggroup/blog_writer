@@ -67,6 +67,7 @@ class Config:
         self.model_config_or = ModelConfig(llm_type=LLMType.OPEN_ROUTER)
         self.model_config_ollama = ModelConfig(llm_type=LLMType.OLLAMA)
         self.model_config_hf_chat = ModelConfig(llm_type=LLMType.HF_CHAT)
+        self.model_config_ts_chat = ModelConfig(llm_type=LLMType.TS_CHAT)
         self.web_extractor = WebExtractorConfig()
         self.web_search = WebSearchConfig()
 

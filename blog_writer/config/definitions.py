@@ -19,6 +19,7 @@ class LLMType(StrEnum):
     BING_CHAT = "bing_chat"
     OLLAMA = "ollama"
     HF_CHAT = "hf_chat"
+    TS_CHAT = "ts_chat"
 
 
 # Models: https://openrouter.ai/docs/models
@@ -54,3 +55,9 @@ class HFModel(Enum):
     MISTRAL_7B = "mistralai/Mistral-7B-Instruct-v0.2"
     PHI_3_MINI = "microsoft/Phi-3-mini-4k-instruct"
     LLAMA3 = "meta-llama/Meta-Llama-3-70B-Instruct"
+
+
+class TSModel(Enum):
+    GPT_4_TURBO_PREVIEW = "gpt-4-turbo-preview"
+    GPT_4O = "gpt-4o"
+    GPT_35_TURBO = "gpt-3.5-turbo"

@@ -56,11 +56,6 @@ class HFChatModel(BaseChatModel):
 
         self.chatbot = chatbot
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_fixed(10) + wait_random(0, 2),
-        before=before_log(logger, logging.INFO),
-    )
     async def _call_llm(self, question: str, debug=True) -> dict:
         conv = self.chatbot.new_conversation(
             switch_to=True
