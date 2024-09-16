@@ -4,6 +4,7 @@ import re
 from blog_writer.config.logger import logger
 import tiktoken
 
+
 def load_json(data: str, throw_if_err: bool = False) -> dict:
     """
     Load JSON from string and return a dict.
@@ -37,7 +38,7 @@ def extract_json_from_markdown(data: str) -> str:
         str
     """
     data = data.strip()
-    
+
     lines = data.split("\n")
     found = False
     new_data = ""
@@ -48,36 +49,53 @@ def extract_json_from_markdown(data: str) -> str:
             found = True
             new_data += line + "\n"
             continue
-    
+
     if new_data == "":
         return data
-    
+
     data = new_data.strip()
-    
+
     if "```\n{" in data:
         data = data.replace("```\n{", "```json\n{")
     if "```JSON" in data:
-        val = data.replace("```JSON", "").replace("```json", "")
-    val = re.findall(r'```json(.*?)```', data, re.DOTALL)
+        data = data.replace("```JSON", "").replace("```json", "")
+    # count ``` in data
+    count = data.count("```")
+    if count > 2:
+        return data
+
+    val = re.findall(r"```json(.*?)```", data, re.DOTALL)
     if len(val) == 0:
-        val = re.findall(r'```(.*?)```', data, re.DOTALL)
+        val = re.findall(r"```(.*?)```", val, re.DOTALL)
 
     return val[0] if val else data
+
+
+def extract_content_from_markdown(data: str) -> str:
+    if not data.startswith("```"):
+        return data
+
+    data = data.replace("```markdown", "")
+    data = data.replace("```md", "")
+    # replace last ``` with empty string
+    data = data.rsplit("```", 1)[0]
+    return data
+
 
 def ignore_first_path(data: str) -> str:
     if data.startswith("{"):
         return data
-    
+
     # get data from first { to last }
     start = data.find("{")
     end = data.rfind("}")
-    return data[start:end+1]
+    return data[start : end + 1]
+
 
 def count_tokens(tokens: str) -> int:
     enc = tiktoken.encoding_for_model("gpt-4")
     total = len(enc.encode(tokens))
     return total
-
 
 
 if __name__ == "__main__":

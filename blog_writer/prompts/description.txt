@@ -7,16 +7,16 @@ Input outline has JSON format and in tag <outline></outline>, the JSON structure
   "outline": [
     {
       "header": "...",
-      "short_description": "..."
+      "description": "..."
     },
     {
       "header": "...",
-      "short_description": "..."
+      "description": "..."
     },
     ... # add more header as you want
     {
       "header": "...",
-      "short_description": "..."
+      "description": "..."
     }
   ]
 }
@@ -24,7 +24,7 @@ Input outline has JSON format and in tag <outline></outline>, the JSON structure
 With:
 - outline: outline of your blog post
   + header: header of the section in your blog post, it should be short and easy to understand.
-  + short_description: short description of the section in your blog post that is attractive to readers and has at least 100 words. It must mention the main idea of the section and the main points that you will write in the section.
+  + description: description of the section in your blog post that is attractive to readers and has at least 100 words. It must mention the main idea of the section and the main points that you will write in the section.
 
 Beside, I also give you the main purpose of the article in the tag <purpose></purpose>. You can refer to this purpose to write the description of the article.
 

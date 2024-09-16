@@ -1,25 +1,16 @@
-from datetime import datetime
+import asyncio
 import json
 import os
-from typing import List, Tuple, Dict
-
+from datetime import datetime
 from langchain_core.messages import HumanMessage, SystemMessage
+from re_edge_gpt import ImageGen
 
 from blog_writer.agents.base import AgentInterface
 from blog_writer.config.config import load_config
 from blog_writer.config.definitions import ROOT_DIR
 from blog_writer.config.logger import logger
-from blog_writer.model.search import SearchResult
 from blog_writer.prompts import load_agent_prompt
-from blog_writer.utils.encoder import ObjectEncoder
-from blog_writer.utils.file import wrap_text_with_tag
 from blog_writer.utils.stream_token_handler import StreamTokenHandler
-import asyncio
-import json
-from pathlib import Path
-
-from re_edge_gpt import Chatbot, ImageGen
-from re_edge_gpt import ConversationStyle
 
 
 class ImageGeneratorAgent(AgentInterface):
@@ -46,7 +37,7 @@ class ImageGeneratorAgent(AgentInterface):
             try:
                 os.makedirs(folder_name)
             except Exception as e:
-                logger.warn("Error in creating folder", e)
+                logger.warn("folder is existed")
 
             sync_gen = ImageGen(auth_cookie=auth_cooker)
             image_list = sync_gen.get_images(desc)

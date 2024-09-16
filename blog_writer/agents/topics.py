@@ -16,6 +16,10 @@ class TopicsAgentOutput:
         if answer == "":
             self.topics = {}
             return
+        if "An unexpected error occurred" in answer:
+            raise Exception(
+                "You must refresh session in https://chat.tsengineering.io/"
+            )
         self.topics = self._parse_answer(answer)
 
     def _parse_answer(self, answer: str) -> dict:
@@ -23,15 +27,13 @@ class TopicsAgentOutput:
         data = load_json(answer)
 
         topics = {}
-        for topic in data['topics']:
-            topics[topic['topic']] = topic['subtopics']
+        for topic in data["topics"]:
+            topics[topic["topic"]] = topic["subtopics"]
         return topics
 
 
 class TopicAgent(AgentInterface):
-    def render_system_message(self,
-                              no_topics: int,
-                              no_subtopics: int):
+    def render_system_message(self, no_topics: int, no_subtopics: int):
         system_template = load_agent_prompt("topics")
         system_message_prompt = SystemMessagePromptTemplate.from_template(
             system_template
@@ -44,27 +46,25 @@ class TopicAgent(AgentInterface):
         return system_message
 
     def render_human_message(
-            self,
-            topic: str,
+        self,
+        topic: str,
     ):
         content = f"Subject: {topic}"
         logger.info("\033[31m****Outline Agent human message****\n%s\033[0m", content)
         return HumanMessage(content=content)
 
     def run(
-            self,
-            subject: str,
-            no_topics: int = 3,
-            no_subtopics: int = 3,
+        self,
+        subject: str,
+        no_topics: int = 3,
+        no_subtopics: int = 3,
     ) -> TopicsAgentOutput:
         human_message = self.render_human_message(
             topic=subject,
         )
 
         messages = [
-            self.render_system_message(
-                no_topics=no_topics,
-                no_subtopics=no_subtopics),
+            self.render_system_message(no_topics=no_topics, no_subtopics=no_subtopics),
             human_message,
         ]
 
@@ -160,8 +160,9 @@ def main():
     ]
 }
     """
-    
+
     print(TopicsAgentOutput(data).topics)
-    
+
+
 if __name__ == "__main__":
     main()

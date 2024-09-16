@@ -34,6 +34,7 @@ from blog_writer.model.search import SearchResult
 from blog_writer.store.storage import Storage
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import read_file
+from blog_writer.utils.parse_suggestions import persist_suggestions
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.utils.text import load_json
 from blog_writer.web_scraper import WebScraper
@@ -270,11 +271,18 @@ def write_blog(
         debug=True,
     )
 
+    suggest_agent = SuggestionAgent(
+        model_config=write_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.1,
+    )
+
     first_version = ""
     with_suggestions = ""
     final_blog = ""
     review_blog = ""
     example_blog = ""
+    visualization_blog = ""
 
     # TODO: remove
 
@@ -337,13 +345,20 @@ def write_blog(
             # last_content = enrichment_output.content
 
             # generate example
-            example_output = example_writer.run(content=last_content)
+            # example_output = example_writer.run(content=last_content)
 
+            visualization = suggest_agent.run(blog=last_content)
             # final result
             with_suggestions += last_content + "\n\n"
             review_blog += f"\n\n ### Questions follow \n\n {suggestions} \n\n"
+
+            persist_folder = f"{storage.workspace}/{o['header'].lower().replace(' ','_').replace('.','_')}"
+
+            persist_suggestions(raw=visualization.content, output_path=persist_folder)
+
             final_blog += last_content + "\n\n"
-            example_blog += f"\n\n### Example \n\n {o['header']} \n\n======= \n\n {example_output.content}\n\n======= \n\n"
+
+            visualization_blog += f"\n\n### Visualization \n\n {o['header']} \n\n======= \n\n {visualization.content}\n\n======= \n\n"
             tracker.current_step = idx
             idx += 1
     except Exception as e:
@@ -356,6 +371,7 @@ def write_blog(
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
     storage.write(EXAMPLE_FILE, example_blog)
+    storage.write(SUGGESTION, visualization_blog)
 
     if has_ex:
         logger.error(f"Fail to write blog at step {tracker.current_step}")
@@ -413,25 +429,25 @@ def generate(subject, load_from, skip_all: bool = True):
         cfg=config,
     )
 
-    if storage.read(SUGGESTION) != "":
-        logger.info("Suggestion already generated")
-    else:
-        suggest_agent = SuggestionAgent(
-            model_config=model_config_map["suggest"],
-            stream_callback_manager=StreamConsoleCallbackManager(),
-            temperature=0.1,
-        )
-        output = suggest_agent.run(subject, blog_content)
-        logger.info(output.content)
-        storage.write(SUGGESTION, output.content)
+    # if storage.read(SUGGESTION) != "":
+    #     logger.info("Suggestion already generated")
+    # else:
+    #     suggest_agent = SuggestionAgent(
+    #         model_config=model_config_map["suggest"],
+    #         stream_callback_manager=StreamConsoleCallbackManager(),
+    #         temperature=0.1,
+    #     )
+    #     output = suggest_agent.run(blog=blog_content)
+    #     logger.info(output.content)
+    #     storage.write(SUGGESTION, output.content)
 
     storage.write(FINAL_BLOG_FILE, fix_format(storage))
 
-    isGenImage = input("Generate image? y/n: ")
-    if isGenImage == "y":
-        logger.info("Start generate image")
+    is_gen_image = input("Generate image? y/n: ")
+    if is_gen_image == "y":
+        logger.info(f"Start generate image\n{outline_output.description}")
         image_generate_agent = ImageGeneratorAgent(
-            model_config=config.model_config_ollama,
+            model_config=config.model_config_ts_chat,
         )
         image_generate_agent.run(outline_output.description, storage.working_name)
         logger.info("Gen image done")

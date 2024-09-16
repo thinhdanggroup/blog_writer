@@ -40,7 +40,15 @@ class TSChatModel(BaseChatModel):
             with open(ts_cookie_file, "r") as f:
                 cookie_config = f.read()
         cookie_config = json.loads(cookie_config)
-        self.cookie_value = cookie_config.get("cookie_value", "")
+        cookie_value = ""
+        for cookie in cookie_config["cookies"]:
+            name = cookie.get("name", "")
+            value = cookie.get("value", "")
+            if not name and not value:
+                raise ValueError("Cookie name and value must be provided")
+            cookie_value += f"{name}={value}; "
+        print("Cookie value: ", cookie_value)
+        self.cookie_value = cookie_value
 
     def _call_llm(self, messages: List[BaseMessage], debug=True) -> dict:
         url = "https://chat.tsengineering.io/api/chat/azure"

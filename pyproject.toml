@@ -28,6 +28,8 @@ langchain-community = "0.2.4"
 langchain-text-splitters = "0.2.1"
 langchain-google-community = "^1.0.3"
 hugchat = "0.4.10"
+datadog = "^0.49.1"
+markdown = "^3.7"
 
 
 [build-system]
