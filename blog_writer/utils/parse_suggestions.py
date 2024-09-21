@@ -1,22 +1,28 @@
+from typing import List
+
 import subprocess
 
 import os
 
-from blog_writer.utils.text import load_json
+from blog_writer.utils.text import load_json, extract_json_from_markdown
 
 
-def persist_suggestions(raw: str, output_path: str):
+def persist_suggestions(raw: str, output_path: str) -> str:
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     with open(f"{output_path}/raw.json", "w") as file:
         file.write(raw)
 
+    raw = extract_json_from_markdown(raw)
     json_data = load_json(raw)
 
     suggestions = json_data.get("suggestions", [])
 
     i = 0
+
+    suggestions = ""
+
     if "code_snippets" in suggestions:
         for code_snippet in suggestions["code_snippets"]:
             i += 1
@@ -46,3 +52,7 @@ def persist_suggestions(raw: str, output_path: str):
                     f"{file_prefix}.png",
                 ]
             )
+
+            suggestions += f"![{file_prefix}.png]({file_prefix}.png)\n"
+
+    return suggestions

@@ -168,9 +168,7 @@ def write_outline(
 
     desc_output = description_agent.run(subject, output.raw_response)
 
-    result = json.loads(output.raw_response)
-    result["title"] = desc_output.title
-    result["description"] = desc_output.description
+    result = {"title": desc_output.title, "description": desc_output.description}
 
     storage.write(OUTLINE_FILE, json.dumps(result, cls=ObjectEncoder))
     return OutlineModel(
@@ -354,9 +352,13 @@ def write_blog(
 
             persist_folder = f"{storage.workspace}/{o['header'].lower().replace(' ','_').replace('.','_')}"
 
-            persist_suggestions(raw=visualization.content, output_path=persist_folder)
+            suggestion_files = persist_suggestions(
+                raw=visualization.content, output_path=persist_folder
+            )
 
-            final_blog += last_content + "\n\n"
+            gen_image((o["header"] + "\n" + o["short_description"]), persist_folder)
+
+            final_blog += last_content + "\n\n" + suggestion_files + "\n\n"
 
             visualization_blog += f"\n\n### Visualization \n\n {o['header']} \n\n======= \n\n {visualization.content}\n\n======= \n\n"
             tracker.current_step = idx
@@ -387,10 +389,19 @@ def enrich_topic(subject: str):
     return output.answer
 
 
+def gen_image(description: str, working_name: str):
+    working_name = working_name.replace(f"{ROOT_DIR}/.working_space/", "")
+    logger.info(f"Start generate image in folder {working_name}\n{description}")
+    image_generate_agent = ImageGeneratorAgent(
+        model_config=config.model_config_ts_chat,
+    )
+    image_generate_agent.run(description, working_name)
+    logger.info("Gen image done")
+
+
 def generate(subject, load_from, skip_all: bool = True):
     config = load_config()
     subject = subject.strip()
-    # subject = enrich_topic(subject)
 
     storage = Storage(
         subject, load_from_workspace=load_from, model_config=model_config_map["topic"]
@@ -398,7 +409,7 @@ def generate(subject, load_from, skip_all: bool = True):
 
     storage.write(SUBJECT, subject)
 
-    output = generate_topics(subject, storage, 5, 10, False, config)
+    generate_topics(subject, storage, 5, 10, False, config)
     if not skip_all:
         continue_ok = input("Search: Press Enter to continue...")
         if continue_ok != "y":
@@ -453,8 +464,12 @@ def generate(subject, load_from, skip_all: bool = True):
         logger.info("Gen image done")
 
 
-if __name__ == "__main__":
+def main():
     problem = read_file("../../input.txt")
     subject = f'Write a blog about\n"""{problem}\n"""'
     load_from = ""
     generate(subject, load_from)
+
+
+if __name__ == "__main__":
+    main()

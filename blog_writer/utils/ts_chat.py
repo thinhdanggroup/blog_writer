@@ -47,7 +47,6 @@ class TSChatModel(BaseChatModel):
             if not name and not value:
                 raise ValueError("Cookie name and value must be provided")
             cookie_value += f"{name}={value}; "
-        print("Cookie value: ", cookie_value)
         self.cookie_value = cookie_value
 
     def _call_llm(self, messages: List[BaseMessage], debug=True) -> dict:

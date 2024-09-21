@@ -39,36 +39,29 @@ def extract_json_from_markdown(data: str) -> str:
     """
     data = data.strip()
 
-    lines = data.split("\n")
-    found = False
-    new_data = ""
-    for line in lines:
-        if found:
-            new_data += line + "\n"
-        if line.startswith("```"):
-            found = True
-            new_data += line + "\n"
-            continue
-
-    if new_data == "":
-        return data
-
-    data = new_data.strip()
-
     if "```\n{" in data:
         data = data.replace("```\n{", "```json\n{")
     if "```JSON" in data:
         data = data.replace("```JSON", "").replace("```json", "")
+    if "```json\n" in data:
+        data = data.replace("```json\n", "")
+        # replace last ``` with empty string
+        data = data.rsplit("```", 1)[0].strip()
+        return data
+
     # count ``` in data
     count = data.count("```")
     if count > 2:
         return data
 
-    val = re.findall(r"```json(.*?)```", data, re.DOTALL)
-    if len(val) == 0:
-        val = re.findall(r"```(.*?)```", val, re.DOTALL)
-
-    return val[0] if val else data
+    logger.info("Parsing data: %s", data)
+    return data
+    #
+    # val = re.findall(r"```json(.*?)```", data, re.DOTALL)
+    # if len(val) == 0:
+    #     val = re.findall(r"```(.*?)```", val, re.DOTALL)
+    #
+    # return val[0] if val else data
 
 
 def extract_content_from_markdown(data: str) -> str:
