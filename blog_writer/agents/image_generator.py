@@ -25,7 +25,7 @@ class ImageGeneratorAgent(AgentInterface):
         try:
             cookie = open(f"{ROOT_DIR}/data/bing_cookies.json", "r+").read()
             parsed_cookie = json.loads(cookie)
-            for value in parsed_cookie:
+            for value in parsed_cookie["cookies"]:
                 if value["name"] == "_U":
                     auth_cooker = value["value"]
                     break

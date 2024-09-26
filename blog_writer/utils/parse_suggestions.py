@@ -18,10 +18,9 @@ def persist_suggestions(raw: str, output_path: str) -> str:
     json_data = load_json(raw)
 
     suggestions = json_data.get("suggestions", [])
+    output_suggestions = ""
 
     i = 0
-
-    suggestions = ""
 
     if "code_snippets" in suggestions:
         for code_snippet in suggestions["code_snippets"]:
@@ -40,7 +39,11 @@ def persist_suggestions(raw: str, output_path: str) -> str:
             i += 1
             file_prefix = f"{output_path}/diagram_{i}"
             with open(f"{file_prefix}.mermaid", "w") as file:
-                file.write(diagram.get("diagram", ""))
+                diagram_content = diagram.get("diagram", "")
+                diagram_content = diagram_content.replace("```mermaid", "").replace(
+                    "```", ""
+                )
+                file.write(diagram_content)
 
             # run command mmdc -i diagram_1.mermaid -o diagram_1.png
             subprocess.run(
@@ -53,6 +56,6 @@ def persist_suggestions(raw: str, output_path: str) -> str:
                 ]
             )
 
-            suggestions += f"![{file_prefix}.png]({file_prefix}.png)\n"
+            output_suggestions += f"![{file_prefix}.png]({file_prefix}.png)\n"
 
-    return suggestions
+    return output_suggestions

@@ -12,7 +12,6 @@ You receive the outline and a part of blog content. You have to evaluate the par
 Input:
 The subject in tag <subject> is the subject of the blog.
 The outline in tag <outline> is the outline of the blog to help you have the overview about the blog.
-The reference in tag <reference> is the reference of source that the writer used to write the blog.
 The part of content in tag <review_content> is the part of content of the blog that you have to evaluate.
 The completed part of content in tag <completed_content> is the completed part that help you to have context before evaluate the part of content in tag <review_content>.
 

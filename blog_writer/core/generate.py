@@ -454,14 +454,14 @@ def generate(subject, load_from, skip_all: bool = True):
 
     storage.write(FINAL_BLOG_FILE, fix_format(storage))
 
-    is_gen_image = input("Generate image? y/n: ")
-    if is_gen_image == "y":
-        logger.info(f"Start generate image\n{outline_output.description}")
-        image_generate_agent = ImageGeneratorAgent(
-            model_config=config.model_config_ts_chat,
-        )
-        image_generate_agent.run(outline_output.description, storage.working_name)
-        logger.info("Gen image done")
+    # is_gen_image = input("Generate image? y/n: ")
+    # if is_gen_image == "y":
+    logger.info(f"Start generate image\n{outline_output.description}")
+    image_generate_agent = ImageGeneratorAgent(
+        model_config=config.model_config_ts_chat,
+    )
+    image_generate_agent.run(outline_output.description, storage.working_name)
+    logger.info("Gen image done")
 
 
 def main():

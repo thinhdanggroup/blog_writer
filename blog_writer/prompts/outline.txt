@@ -5,7 +5,6 @@ You must think step-by-step by writing outline firstly.
 You receive input:
 
 Subject in tag <subject>: you focus to this subject to deliver information to reader
-Reference documents in tag <reference>: you can refer to these documents to write outline
 
 The description about the blog post must be attractive to readers. You must use your outline to write the description. The description must have at least 200 words.
 
