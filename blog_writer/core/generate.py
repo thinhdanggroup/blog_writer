@@ -168,7 +168,11 @@ def write_outline(
 
     desc_output = description_agent.run(subject, output.raw_response)
 
-    result = {"title": desc_output.title, "description": desc_output.description}
+    result = {
+        "title": desc_output.title,
+        "description": desc_output.description,
+        "outline": output.outline,
+    }
 
     storage.write(OUTLINE_FILE, json.dumps(result, cls=ObjectEncoder))
     return OutlineModel(
@@ -204,11 +208,11 @@ def critique(
 
 
 def write_blog(
-    outline_blog,
-    outline_output,
+    outline_blog: str,
+    outline_output: OutlineModel,
     references: SearchResult,
     storage: Storage,
-    subject,
+    subject: str,
     use_critique: bool = False,
     cfg: Config = None,
 ) -> str:
@@ -283,8 +287,6 @@ def write_blog(
     visualization_blog = ""
 
     # TODO: remove
-
-    references = None
     tracker = StepTracker()
 
     try:
@@ -345,26 +347,28 @@ def write_blog(
             # generate example
             # example_output = example_writer.run(content=last_content)
 
-            visualization = suggest_agent.run(blog=last_content)
             # final result
             with_suggestions += last_content + "\n\n"
             review_blog += f"\n\n ### Questions follow \n\n {suggestions} \n\n"
 
             persist_folder = f"{storage.workspace}/{o['header'].lower().replace(' ','_').replace('.','_')}"
 
-            suggestion_files = persist_suggestions(
-                raw=visualization.content, output_path=persist_folder
-            )
+            suggestion_files = ""
+            if config.generate_blog.writer_visualize_per_step:
+                visualization = suggest_agent.run(blog=last_content)
+                suggestion_files = persist_suggestions(
+                    raw=visualization.content, output_path=persist_folder
+                )
 
-            gen_image((o["header"] + "\n" + o["short_description"]), persist_folder)
+            if config.generate_blog.writer_generate_image_per_step:
+                gen_image((o["header"] + "\n" + o["short_description"]), persist_folder)
 
             final_blog += last_content + "\n\n" + suggestion_files + "\n\n"
 
-            visualization_blog += f"\n\n### Visualization \n\n {o['header']} \n\n======= \n\n {visualization.content}\n\n======= \n\n"
             tracker.current_step = idx
             idx += 1
     except Exception as e:
-        logger.error(e)
+        logger.error(e, exc_info=True)
         has_ex = True
 
     storage.write(STEP_TRACKER, tracker.model_dump_json())
@@ -373,7 +377,6 @@ def write_blog(
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
     storage.write(EXAMPLE_FILE, example_blog)
-    storage.write(SUGGESTION, visualization_blog)
 
     if has_ex:
         logger.error(f"Fail to write blog at step {tracker.current_step}")
@@ -399,7 +402,7 @@ def gen_image(description: str, working_name: str):
     logger.info("Gen image done")
 
 
-def generate(subject, load_from, skip_all: bool = True):
+def generate(subject: str, load_from: str):
     config = load_config()
     subject = subject.strip()
 
@@ -409,25 +412,20 @@ def generate(subject, load_from, skip_all: bool = True):
 
     storage.write(SUBJECT, subject)
 
-    generate_topics(subject, storage, 5, 10, False, config)
-    if not skip_all:
-        continue_ok = input("Search: Press Enter to continue...")
-        if continue_ok != "y":
-            logger.info(storage.workspace)
-            return
-
     # TODO: disable search
-    # references = search_from_topics(subject, output.topics, config, storage, False)
-    references = None
+
+    if config.generate_blog.add_references:
+        output_topics = generate_topics(subject, storage, 5, 10, False, config)
+        references = search_from_topics(
+            subject, output_topics.topics, config, storage, False
+        )
+    else:
+        references = None
+
+    # references = None
     outline_output: OutlineModel = write_outline(
         subject, references, storage, False, config
     )
-
-    if not skip_all:
-        continue_ok = input("Outline: Press Enter to continue...")
-        if continue_ok != "y":
-            logger.info(storage.workspace)
-            return
 
     outline_blog = json.dumps(outline_output.outline)
     blog_content = write_blog(

@@ -11,7 +11,7 @@ from tenacity import retry, stop_after_attempt, retry_if_exception_type
 from blog_writer.config.config import ModelConfig, WebExtractorConfig
 from blog_writer.utils.llm import count_tokens, create_chat_model
 from langchain_community.document_loaders.async_html import AsyncHtmlLoader
-from langchain_community.document_transformers.html2text import Html2TextTransformer 
+from langchain_community.document_transformers.html2text import Html2TextTransformer
 
 from .base import WebExtractorInterface
 from ..model.search import Document, Answer
@@ -29,6 +29,7 @@ class WebExtractor(WebExtractorInterface):
 
     def get_content(self, url) -> Optional[str]:
         urls = [url]
+        # loader = AsyncHtmlLoader(urls, verify_ssl=False)
         loader = AsyncHtmlLoader(urls)
         docs = loader.load()
         html2text = Html2TextTransformer()
@@ -46,22 +47,19 @@ class WebExtractor(WebExtractorInterface):
             length_function=len,
             is_separator_regex=False,
         )
-        
+
         if text is None:
             return None
-        
+
         texts = text_splitter.create_documents([text])
-        
-        summary_docs = Document(
-            url=url,
-            answers=[]
-        )
-        
+
+        summary_docs = Document(url=url, answers=[])
+
         for data in texts:
             doc = self._summarize_text(text=data.page_content, question=query)
             if doc is None:
                 return None
-            
+
             summary_docs.answers.extend(doc.answers)
         return summary_docs
 
@@ -79,7 +77,7 @@ class WebExtractor(WebExtractorInterface):
     def _summarize_text(self, text: str, question: str) -> Optional[Document]:
         if not text:
             return None
-        
+
         text = text.strip()
         if len(text) < 100:
             return None
@@ -90,14 +88,17 @@ class WebExtractor(WebExtractorInterface):
         model = create_chat_model(
             temperature=self._extractor_config.temperature,
             model_config=self._model_config,
-            stream_callback_manager=StreamConsoleCallbackManager()
+            stream_callback_manager=StreamConsoleCallbackManager(),
         )
-        
-        total_tokens= count_tokens(text)
+
+        total_tokens = count_tokens(text)
         if total_tokens > 32000:
             raise ValueError("The text is too long to summarize")
 
-        messages = [self._get_system_prompt(), self._create_message(text=text, question=question)]
+        messages = [
+            self._get_system_prompt(),
+            self._create_message(text=text, question=question),
+        ]
 
         data = StreamTokenHandler(model)(messages, debug=True)
         result = load_json(data, True)
@@ -109,16 +110,12 @@ class WebExtractor(WebExtractorInterface):
 
             if "answer" not in question:
                 continue
-            text_result.answers.append(
-                Answer(question=q, answer=question["answer"])
-            )
+            text_result.answers.append(Answer(question=q, answer=question["answer"]))
         return text_result
 
     @staticmethod
     def _get_system_prompt() -> SystemMessage:
-        return SystemMessage(
-            content=load_agent_prompt("extract")
-        )
+        return SystemMessage(content=load_agent_prompt("extract"))
 
     @staticmethod
     def _create_message(text: str, question: str) -> HumanMessage:
@@ -130,6 +127,4 @@ class WebExtractor(WebExtractorInterface):
         msg += question
         msg += "</questions>"
 
-        return HumanMessage(
-            content=msg
-        )
+        return HumanMessage(content=msg)

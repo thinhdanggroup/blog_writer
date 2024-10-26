@@ -61,6 +61,17 @@ class WebExtractorConfig:
         self.temperature = float(os.getenv("WEB_EXTRACTOR_TEMPERATURE", "0.7"))
 
 
+class GenerateBlogConfig:
+    def __init__(self):
+        self.writer_generate_image_per_step = get_bool(
+            os.getenv("WRITER_GENERATE_IMAGE_PER_STEP", "true")
+        )
+        self.writer_visualize_per_step = get_bool(
+            os.getenv("WRITER_VISUALIZE_PER_STEP", "true")
+        )
+        self.add_references = get_bool(os.getenv("ADD_REFERENCES", "true"))
+
+
 class Config:
     def __init__(self):
         self.model_config_gemini = ModelConfig(llm_type=LLMType.GEMINI)
@@ -70,6 +81,7 @@ class Config:
         self.model_config_ts_chat = ModelConfig(llm_type=LLMType.TS_CHAT)
         self.web_extractor = WebExtractorConfig()
         self.web_search = WebSearchConfig()
+        self.generate_blog = GenerateBlogConfig()
 
 
 def load_config() -> Config:

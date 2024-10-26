@@ -1,26 +1,14 @@
-import asyncio
 import json
-import logging
+import json
 import os
+import requests
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from pydantic import BaseModel
 from typing import List
 
-import requests
-from pydantic import BaseModel
-
-from re_edge_gpt import Chatbot, ConversationStyle
-from tenacity import retry, stop_after_attempt, wait_fixed, wait_random, before_log
-
 from blog_writer.config.config import load_config
-from blog_writer.config.logger import logger
-
-from blog_writer.config.definitions import ROOT_DIR, HFModel, TSModel
-
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
-from hugchat import hugchat
-from hugchat.types.message import Conversation
-from hugchat.login import Login
+from blog_writer.config.definitions import ROOT_DIR, TSModel
 from blog_writer.utils.base_chat_model import BaseChatModel
-from blog_writer.utils.text import count_tokens
 
 
 class ResponseMessage(BaseModel):
@@ -100,7 +88,11 @@ class TSChatModel(BaseChatModel):
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0",
         }
         response = requests.request(
-            "POST", url, headers=headers, data=json.dumps(payload)
+            "POST",
+            url,
+            headers=headers,
+            data=json.dumps(payload),
+            # verify=False,
         )
 
         return {

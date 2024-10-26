@@ -20,26 +20,24 @@ class WriterAgentOutput:
 
 class WriterAgent(AgentInterface):
     def render_system_message(self):
-        system_message = SystemMessage(
-            content=load_agent_prompt("writer")
-        )
+        system_message = SystemMessage(content=load_agent_prompt("writer"))
         return system_message
 
     def render_human_message(
-            self,
-            subject: str,
-            previous_content: str,
-            current_session: str,
-            suggestions: str,
-            references: SearchResult = None,
-            retrieved_data: str = None,
+        self,
+        subject: str,
+        previous_content: str,
+        current_session: str,
+        suggestions: str,
+        references: SearchResult = None,
+        retrieved_data: str = None,
     ):
         content = wrap_text_with_tag(subject, "subject")
 
         # reference docs
-        if references and references.strip() != "":
+        if references and references.get_minified().strip():
             content += wrap_text_with_tag(references.get_minified(), "reference")
-        
+
         if retrieved_data and retrieved_data.strip() != "":
             content += wrap_text_with_tag(retrieved_data, "reference")
 
@@ -47,7 +45,10 @@ class WriterAgent(AgentInterface):
         total_previous_content_tokens = count_tokens(previous_content)
         if total_previous_content_tokens > 2000:
             # last 3000 characters
-            compress_previous_content = "...previous content is hide a part  because it is too long .../n" + previous_content[-3000:]
+            compress_previous_content = (
+                "...previous content is hide a part  because it is too long .../n"
+                + previous_content[-3000:]
+            )
             content += wrap_text_with_tag(compress_previous_content, "previous_content")
 
         # current session
@@ -60,13 +61,13 @@ class WriterAgent(AgentInterface):
         return HumanMessage(content=content)
 
     def run(
-            self,
-            topic: str,
-            previous_content: str,
-            current_session: str,
-            suggestions: str,
-            references: SearchResult = None,
-            retrieved_data: str = None,
+        self,
+        topic: str,
+        previous_content: str,
+        current_session: str,
+        suggestions: str,
+        references: SearchResult = None,
+        retrieved_data: str = None,
     ) -> WriterAgentOutput:
         human_message = self.render_human_message(
             subject=topic,
