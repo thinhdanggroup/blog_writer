@@ -26,8 +26,9 @@ def read_file(file_path):
     return ""
 
 
-def append_file(file_path, content):
-    print(f"Writing file {file_path}")
+def append_file(file_path, content, log=True):
+    if log:
+        print(f"Writing file {file_path}")
 
     parent_folder = os.path.dirname(file_path)
 
@@ -37,7 +38,8 @@ def append_file(file_path, content):
     try:
         with open(file_path, "a") as file:
             file.write(content)
-        print("File updated successfully.")
+        if log:
+            print("File updated successfully.")
     except FileNotFoundError:
         print(f"File not found {file_path}")
         raise FileNotFoundError

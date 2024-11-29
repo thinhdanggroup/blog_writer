@@ -11,6 +11,7 @@ from blog_writer.utils.stream_token_handler import StreamTokenHandler
 from utils import read_file, append_file
 from blog_writer.config.config import new_model_config
 from blog_writer.config.definitions import LLMType, OpenRouterModel
+from blog_writer.config.definitions import TSModel
 
 load_dotenv()
 
@@ -48,15 +49,19 @@ def main():
 
     config = new_model_config(
         # gemini
-        "gemini-pro",
-        LLMType.GEMINI,
+        # "gemini-pro",
+        # LLMType.GEMINI,
         # open router
         # OpenRouterModel.PHI_3_MEDIUM.value[0],
         # LLMType.OPEN_ROUTER,
         # bing
         # LLMType.BING_CHAT,
         # LLMType.BING_CHAT,
+        # ts_chat
+        TSModel.GPT_4O.value,
+        LLMType.TS_CHAT,
     )
+
     llm = create_chat_model(
         model_config=config,
         temperature=0,

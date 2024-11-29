@@ -1,0 +1,66 @@
+
+========================================
+Question:
+Describe how your colleague has applied their technical skills and problem-solving abilities to contribute to team and company goals. (Provide examples of projects or situations where they drove innovation, addressed challenges, and achieved significant outcomes.)
+Answer:
+- Tôn Hồ has effectively applied his technical skills as an Associate Software Engineer to contribute to team and company goals through various projects.
+
+- In the Collin Collection project, he demonstrated his backend development skills by building essential features for the AI-driven debt collection platform, enhancing its functionality and efficiency.
+
+- His full-stack expertise was pivotal in the Allocation Engine project, where he actively contributed to generating allocation strategies for customer calls. His support was invaluable, showcasing his ability to drive innovation and address challenges.
+
+- Tôn's involvement in the Telephony Service project further highlights his technical acumen, as he provided support to enhance the project's features.
+
+- His strong research skills and curiosity about new technologies, such as pandas, numpy, websocket, and celery, have enabled him to address complex problems and contribute to significant project outcomes.
+========================================
+Question:
+How has your colleague collaborated with others to achieve shared goals, and how have they influenced positive outcomes? (Discuss specific instances where their collaboration and influence made a difference within the team.)Answer:
+Tôn Hồ has demonstrated strong collaboration skills, positively influencing team outcomes in several instances:
+
+- In the Allocation Engine project, Tôn's full-stack expertise and proactive support were crucial. His collaborative efforts with team members ensured successful implementation of allocation strategies, significantly enhancing project efficiency.
+
+- Tôn's role as a supportive team player was evident when he assisted colleagues in understanding and integrating new technologies, such as pandas and numpy, fostering a culture of learning and innovation within the team.
+
+- His ability to work well with others was highlighted in the Telephony Service project, where his contributions helped streamline communication and improve feature development, resulting in a more cohesive team effort.
+
+- Tôn's openness to sharing knowledge and his willingness to learn from others have consistently fostered a positive work environment, driving the team towards achieving shared goals.
+========================================
+Question:
+Can you provide an example of how your colleague has embodied the company’s core values of Extreme Ownership , Insight Driven , Mindfulness and Audacity in their work? (Reflect on how these values have guided your decisions and interactions within the company. Explain how your actions align with the company’s values and standards.)Answer:
+Tôn Hồ has consistently embodied the company's core values through his work:
+
+- **Extreme Ownership**: Tôn takes full responsibility for his tasks, as seen in the Collin Collection project, where he independently developed backend features. His commitment to delivering quality work reflects his ownership of responsibilities.
+
+- **Insight Driven**: His strong research skills and curiosity about new technologies, such as pandas and numpy, showcase his dedication to making informed decisions. Tôn's ability to investigate issues thoroughly ensures that his contributions are based on solid insights.
+
+- **Mindfulness**: Tôn's awareness of team dynamics and his supportive nature in projects like the Allocation Engine demonstrate his mindfulness. He actively listens to team members and provides assistance, fostering a respectful and collaborative environment.
+
+- **Audacity**: Tôn's willingness to embrace new challenges, such as learning websocket and celery, highlights his audacity. He is not afraid to venture into unfamiliar territories, driving innovation and growth within the team.
+========================================
+Question:
+In what ways has your colleague shown leadership potential and strategic thinking in their current role? (Highlight instances where they took initiative, led projects, or contributed to long-term planning.)Answer:
+Tôn Hồ has demonstrated leadership potential and strategic thinking in his current role through various initiatives:
+
+- **Initiative in Project Development**: In the Collin Collection project, Tôn took the initiative to independently develop backend features, showcasing his ability to lead aspects of the project and drive it forward.
+
+- **Proactive Problem-Solving**: His proactive approach in the Allocation Engine project, where he supported full-stack development, highlights his strategic thinking in addressing challenges and optimizing processes.
+
+- **Knowledge Sharing and Mentorship**: Tôn's willingness to assist colleagues in understanding new technologies, like pandas and numpy, indicates his leadership potential in fostering a learning culture and guiding team members.
+
+- **Embracing New Technologies**: His eagerness to learn and implement new technologies, such as websocket and celery, demonstrates his strategic mindset in ensuring the team stays ahead in technological advancements.
+
+- **Supportive Team Player**: Tôn consistently contributes to long-term team goals by being a reliable and supportive collaborator, enhancing overall team performance and cohesion.
+========================================
+Question:
+How has your colleague adapted to changes and acquired new skills in their role, and what impact has this had on their performance? (Discuss any adjustments they made in response to industry shifts and how continuous learning has enhanced their contributions.)Answer:
+Tôn Hồ has shown remarkable adaptability and commitment to continuous learning, significantly impacting his performance:
+
+- **Embracing New Technologies**: Tôn has actively learned and implemented new technologies like pandas, numpy, websocket, and celery, showcasing his ability to adapt to industry trends and enhance his technical skill set.
+
+- **Response to Industry Shifts**: By staying curious and informed about emerging technologies, Tôn has effectively adjusted to changes in the software engineering landscape, ensuring his contributions remain relevant and innovative.
+
+- **Enhanced Problem-Solving**: His ability to quickly acquire new skills has improved his problem-solving capabilities, allowing him to address complex challenges more effectively and contribute to successful project outcomes.
+
+- **Increased Efficiency**: Tôn's continuous learning has led to increased efficiency in his work, as he applies new knowledge to optimize processes and deliver high-quality results.
+
+- **Positive Impact on Team**: His adaptability and eagerness to learn have inspired colleagues, fostering a culture of continuous improvement and innovation within the team.
