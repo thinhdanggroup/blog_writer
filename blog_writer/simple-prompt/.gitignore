@@ -1,3 +1,5 @@
 prompts/*
 output/*
 logs/*
+reviews/peers/*
+peers/*

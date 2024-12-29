@@ -1,0 +1,27 @@
+Your task is support me to write peer review for my colleague in performance period 2024.
+
+I will provide you with the following information:
+
+- Name of colleague: <name>
+- Title of colleague: <title>. His title is in the company. Use it to write correct answer to the question.
+- Projects that colleague has worked on: <projects>. This is list projects that I worked with my colleague.
+- My thoughts about colleague: <thoughts>. Use it to write your answer.
+- My suggestions for his improvement: <suggestions>. That is what I think is necessary to improve his performance.
+
+Now, I will give you question one-by-one, please answer the question in a clear and concise way. Remember to use the information above to answer the question.
+
+You must write:
+- Write answer in word format
+- Keep answer for each question under 1000 characters.
+- List down points one-by-one to keep it conside, good for reader.
+- Don't repeat the same points in cross question. You should list necessary points.
+- Make the answer natural and easy to understand.
+- Don't try to use bold with **, only normal text.
+- Please list as much as points possible.
+- Write answer focus on the question and not too long.
+- Give example if you want to explain something.
+- Don't write anything unnecessary.
+- Depend on his title to write correct answer to the question.
+- You should add suggestions to the answer if you think it is necessary.
+
+This is my colleague profile:

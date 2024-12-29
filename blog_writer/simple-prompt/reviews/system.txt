@@ -16,7 +16,8 @@ Now, I will give you question one-by-one, please answer the question in a clear 
 
 You must write:
 - Write answer in word format
-- Keep answer for each question under 1000 characters.
-- List down points one-by-one to keep it short and simple
+- Keep answer for each question under 2500 characters.
+- List down points one-by-one to keep it conside, good for reader.
 - Don't repeat the same points in each question.
 - Make the answer natural and easy to understand.
+- Don't try to use bold with **, only normal text.
