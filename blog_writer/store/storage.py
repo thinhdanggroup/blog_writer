@@ -47,5 +47,5 @@ class Storage:
             "[^a-zA-Z0-9-_]", "-", generated_name.replace(" ", "-").lower()[0:60]
         )
 
-        self.generated_name = generated_name
+        self.generated_name = name
         return unique_time + "_" + name

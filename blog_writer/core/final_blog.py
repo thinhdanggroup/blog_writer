@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import os
 
 import json
@@ -55,7 +57,10 @@ def extract_reference_details(text):
 def create_final_format(storage):
     PARENT_FINAL_FOLDER = "final"
 
-    FINAL_BLOG_FILE = f"{PARENT_FINAL_FOLDER}/final_blog.md"
+    # create current date in format YYYY-MM-DD
+    dt = datetime.now()
+    unique_time = dt.strftime("%Y-%m-%d")
+    FINAL_BLOG_FILE = f"{PARENT_FINAL_FOLDER}/{unique_time}-{storage.generated_name}.md"
     storage.write(FINAL_BLOG_FILE, fix_format(storage))
 
 
@@ -86,7 +91,6 @@ def fix_format(storage):
         # insert data after first line
         split_content = last_content.split("\n")
 
-        # find index of #
         index = 0
         for i, v in enumerate(split_content):
             if v.startswith("#"):
@@ -154,7 +158,7 @@ def fix_file(workspace):
 if __name__ == "__main__":
     storage = Storage(
         subject="blog-on-sip-trunking-communication",
-        load_from_workspace="250112123241_blog-on-sip-trunking-communication-",
+        load_from_workspace="250112141449_blog-about-sip-trunking-communication-",
     )
-    storage.generated_name = "blog-on-sip-trunking-communication"
+    storage.generated_name = "blog-about-sip-trunking-communication-"
     create_final_format(storage)
