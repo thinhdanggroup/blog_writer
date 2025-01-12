@@ -1,10 +1,12 @@
+from typing import List
+
 from datetime import datetime
 import re
 from blog_writer.agents.title_generator import TitleGenerator
 from blog_writer.config.config import ModelConfig, new_model_config
 
 from blog_writer.config.definitions import ROOT_DIR, LLMType, OpenRouterModel
-from blog_writer.utils.file import write_file, read_file
+from blog_writer.utils.file import write_file, read_file, list_files
 
 
 class Storage:
@@ -32,6 +34,10 @@ class Storage:
     def read(self, file_name: str) -> str:
         return read_file(self.workspace + "/" + file_name)
 
+    def list(self, sub_folder: str) -> List[str]:
+        full_path, relative = list_files(f"{self.workspace}/{sub_folder}")
+        return relative
+
     def _get_working_folder(self, name: str) -> str:
         generated_name = self.title_generator.run(name).description
 
@@ -40,4 +46,6 @@ class Storage:
         name = re.sub(
             "[^a-zA-Z0-9-_]", "-", generated_name.replace(" ", "-").lower()[0:60]
         )
+
+        self.generated_name = generated_name
         return unique_time + "_" + name

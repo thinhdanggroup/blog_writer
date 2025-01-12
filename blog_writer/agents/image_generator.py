@@ -2,11 +2,12 @@ import asyncio
 import json
 import os
 from datetime import datetime
+from typing import Optional
 from langchain_core.messages import HumanMessage, SystemMessage
 from re_edge_gpt import ImageGen
 
 from blog_writer.agents.base import AgentInterface
-from blog_writer.config.config import load_config
+from blog_writer.config.config import ModelConfig, load_config
 from blog_writer.config.definitions import ROOT_DIR
 from blog_writer.config.logger import logger
 from blog_writer.prompts import load_agent_prompt
@@ -14,6 +15,31 @@ from blog_writer.utils.stream_token_handler import StreamTokenHandler
 
 
 class ImageGeneratorAgent(AgentInterface):
+    
+    def __init__(self, model_config: ModelConfig,
+            fallback_model_config: Optional[ModelConfig] = None,
+            temperature: float = 0,
+            stream_callback_manager = None,
+            max_tokens: Optional[int] = None,
+            n: Optional[int] = 1,
+            callbacks: Optional[list] = None,
+            debug: bool = False,
+            retry_count: int = 3,
+            generate_image: bool = True,
+            ):
+        super().__init__(
+            model_config=model_config,
+            fallback_model_config=fallback_model_config,
+            temperature=temperature,
+            stream_callback_manager=stream_callback_manager,
+            max_tokens=max_tokens,
+            n=n,
+            callbacks=callbacks,
+            debug=debug,
+            retry_count=retry_count,
+        )
+        self.generate_image = generate_image
+    
     @staticmethod
     def render_system_message():
         system_message = SystemMessage(content=load_agent_prompt("image_generator"))
@@ -81,10 +107,13 @@ class ImageGeneratorAgent(AgentInterface):
         except Exception as e:
             logger.error(f"Error in generating idea: {e}")
 
-        self._generate(
-            working_dir=working_dir,
-            desc=f"Create image about this description:\n{idea}",
-        )
+        if self.generate_image:
+            self._generate(
+                working_dir=working_dir,
+                desc=f"Create image about this description:\n{idea}",
+            )
+        else:
+            logger.info(f"""Idea: {idea}""")
 
 
 if __name__ == "__main__":

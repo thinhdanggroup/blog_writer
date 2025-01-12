@@ -27,6 +27,17 @@ from blog_writer.config.definitions import (
     OllamaModel,
     OpenRouterModel,
     TSModel,
+    TOPIC_FILE,
+    SEARCH_FILE,
+    OUTLINE_FILE,
+    BLOG_FILE,
+    STEP_TRACKER,
+    EXAMPLE_FILE,
+    REVIEW_FILE,
+    BLOG_V2_FILE,
+    BLOG_V1_FILE,
+    INDEX_DIAGRAM,
+    SUBJECT,
 )
 from blog_writer.config.logger import logger
 from blog_writer.model.data import OutlineModel, StepTracker
@@ -38,20 +49,8 @@ from blog_writer.utils.parse_suggestions import persist_suggestions
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.utils.text import load_json
 from blog_writer.web_scraper import WebScraper
-from blog_writer.core.final_blog import fix_format
+from blog_writer.core.final_blog import fix_format, create_final_format
 
-TOPIC_FILE = "topics.json"
-SEARCH_FILE = "search.json"
-OUTLINE_FILE = "outline.json"
-BLOG_V1_FILE = "blog_v1.md"
-BLOG_V2_FILE = "blog_v2.md"
-BLOG_FILE = "blog.md"
-STEP_TRACKER = "step_tracker.json"
-SUBJECT = "subject.md"
-REVIEW_FILE = "review.md"
-EXAMPLE_FILE = "example.md"
-FINAL_BLOG_FILE = "final_blog.md"
-SUGGESTION = "suggestion.json"
 
 config = load_config()
 
@@ -285,6 +284,7 @@ def write_blog(
     review_blog = ""
     example_blog = ""
     visualization_blog = ""
+    index_diagram = []
 
     # TODO: remove
     tracker = StepTracker()
@@ -351,7 +351,8 @@ def write_blog(
             with_suggestions += last_content + "\n\n"
             review_blog += f"\n\n ### Questions follow \n\n {suggestions} \n\n"
 
-            persist_folder = f"{storage.workspace}/{o['header'].lower().replace(' ','_').replace('.','_')}"
+            sub_folder_name = o["header"].lower().replace(" ", "_").replace(".", "_")
+            persist_folder = f"{storage.workspace}/{sub_folder_name}"
 
             suggestion_files = ""
             if config.generate_blog.writer_visualize_per_step:
@@ -363,8 +364,20 @@ def write_blog(
             if config.generate_blog.writer_generate_image_per_step:
                 gen_image((o["header"] + "\n" + o["short_description"]), persist_folder)
 
+            with open(f"{persist_folder}/content.md", "w") as file:
+                file.write(f"{last_content}\n\n")
+
             final_blog += last_content + "\n\n" + suggestion_files + "\n\n"
 
+            index_diagram.append(
+                {
+                    "header": o["header"],
+                    "short_description": o["short_description"],
+                    "content": last_content,
+                    "sub_folder_name": sub_folder_name,
+                    "suggestion_files": suggestion_files,
+                }
+            )
             tracker.current_step = idx
             idx += 1
     except Exception as e:
@@ -377,6 +390,7 @@ def write_blog(
     storage.write(BLOG_FILE, final_blog)
     storage.write(REVIEW_FILE, review_blog)
     storage.write(EXAMPLE_FILE, example_blog)
+    storage.write(INDEX_DIAGRAM, json.dumps(index_diagram))
 
     if has_ex:
         logger.error(f"Fail to write blog at step {tracker.current_step}")
@@ -450,13 +464,14 @@ def generate(subject: str, load_from: str):
     #     logger.info(output.content)
     #     storage.write(SUGGESTION, output.content)
 
-    storage.write(FINAL_BLOG_FILE, fix_format(storage))
+    create_final_format(storage=storage)
 
     # is_gen_image = input("Generate image? y/n: ")
     # if is_gen_image == "y":
     logger.info(f"Start generate image\n{outline_output.description}")
     image_generate_agent = ImageGeneratorAgent(
         model_config=config.model_config_ts_chat,
+        generate_image=config.generate_blog.writer_generate_image,
     )
     image_generate_agent.run(outline_output.description, storage.working_name)
     logger.info("Gen image done")

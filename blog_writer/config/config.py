@@ -69,6 +69,9 @@ class GenerateBlogConfig:
         self.writer_visualize_per_step = get_bool(
             os.getenv("WRITER_VISUALIZE_PER_STEP", "true")
         )
+        self.writer_generate_image = get_bool(
+            os.getenv("WRITER_GENERATE_IMAGE", "false")
+        )
         self.add_references = get_bool(os.getenv("ADD_REFERENCES", "true"))
 
 

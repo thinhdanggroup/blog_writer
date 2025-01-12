@@ -61,3 +61,18 @@ class TSModel(Enum):
     GPT_4_TURBO_PREVIEW = "gpt-4-turbo-preview"
     GPT_4O = "gpt-4o"
     GPT_35_TURBO = "gpt-3.5-turbo"
+
+
+TOPIC_FILE = "topics.json"
+SEARCH_FILE = "search.json"
+OUTLINE_FILE = "outline.json"
+BLOG_V1_FILE = "blog_v1.md"
+BLOG_V2_FILE = "blog_v2.md"
+BLOG_FILE = "blog.md"
+STEP_TRACKER = "step_tracker.json"
+SUBJECT = "subject.md"
+REVIEW_FILE = "review.md"
+EXAMPLE_FILE = "example.md"
+FINAL_BLOG_FILE = "final_blog.md"
+SUGGESTION = "suggestion.json"
+INDEX_DIAGRAM = "index_diagram.json"

@@ -1,10 +1,16 @@
+import json
+
 from typing import List
 
 import subprocess
 
 import os
 
+from blog_writer.config.logger import logger
 from blog_writer.utils.text import load_json, extract_json_from_markdown
+
+
+INDEX_FILE = "index.json"
 
 
 def persist_suggestions(raw: str, output_path: str) -> str:
@@ -17,6 +23,7 @@ def persist_suggestions(raw: str, output_path: str) -> str:
     raw = extract_json_from_markdown(raw)
     json_data = load_json(raw)
 
+    suggestion_files = []
     suggestions = json_data.get("suggestions", [])
     output_suggestions = ""
 
@@ -44,6 +51,7 @@ def persist_suggestions(raw: str, output_path: str) -> str:
                     "```", ""
                 )
                 file.write(diagram_content)
+                logger.info(f"Generating diagram {file_prefix}.png")
 
             # run command mmdc -i diagram_1.mermaid -o diagram_1.png
             subprocess.run(
@@ -57,5 +65,9 @@ def persist_suggestions(raw: str, output_path: str) -> str:
             )
 
             output_suggestions += f"![{file_prefix}.png]({file_prefix}.png)\n"
+            suggestion_files.append(f"{file_prefix}.png")
+
+    with open(f"{output_path}/{INDEX_FILE}", "w") as file:
+        file.write(json.dumps(suggestion_files))
 
     return output_suggestions

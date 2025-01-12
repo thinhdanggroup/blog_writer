@@ -11,20 +11,6 @@ Output format in json
 {
     "is_ok": true/false,
     "suggestions": {
-        "code_snippets": [
-            {
-                "code": "code snippet",
-                "description": "description of the code snippet"
-            },
-            ...
-        ],
-        "images": [
-            {
-                "image": "image",
-                "description": "description of the image"
-            },
-            ...
-        ],
         "diagrams": [
             {
                 "diagram": "diagram uml code",

@@ -6,7 +6,7 @@ from datetime import datetime
 from blog_writer.config.logger import logger
 
 
-def list_files(startpath):
+def list_files(startpath) -> (dict, list):
     full_path_list = {}
     relative_path_list = []
 
@@ -183,6 +183,7 @@ def read_code_bases(working_space: str):
         code_bases.append("workspace")
     code_bases.append(working_space)
     return code_bases
+
 
 def wrap_text_with_tag(text: str, tag: str) -> str:
     return f"<{tag}>\n{text}\n</{tag}>\n"

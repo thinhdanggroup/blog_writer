@@ -18,15 +18,21 @@ def main():
     references = storage.read("search.json")
     cur_blog = storage.read("blog.md")
     suggestions = ""
-    final_blog = storage.read("final_blog.md")
 
     write_config = new_model_config("gpt-4-32k-0613")
-    writer_agent = WriterAgent(model_config=write_config, stream_callback_manager=StreamConsoleCallbackManager(),
-                               temperature=0.5)
+    writer_agent = WriterAgent(
+        model_config=write_config,
+        stream_callback_manager=StreamConsoleCallbackManager(),
+        temperature=0.5,
+    )
 
-    out_content = writer_agent.run(subject, references, cur_blog,
-                                   "Write a example for the blog that break online shop in monolithic to microservices",
-                                   suggestions)
+    out_content = writer_agent.run(
+        subject,
+        references,
+        cur_blog,
+        "Write a example for the blog that break online shop in monolithic to microservices",
+        suggestions,
+    )
     print("=== Rewrite Session ===")
     print(out_content.content)
     storage.write("example_1.md", out_content.content)
