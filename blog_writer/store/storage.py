@@ -21,6 +21,7 @@ class Storage:
                 model_config=model_config,
             )
         self.working_name = load_from_workspace
+        self.generated_name = load_from_workspace
         if load_from_workspace != "":
             self.workspace = f"{ROOT_DIR}/.working_space/{load_from_workspace}"
         else:

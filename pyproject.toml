@@ -30,6 +30,8 @@ langchain-google-community = "^2.0.0"
 hugchat = "0.4.10"
 datadog = "^0.49.1"
 markdown = "^3.7"
+crawl4ai = "^0.4.247"
+pysondb = "^1.6.7"
 
 
 [build-system]

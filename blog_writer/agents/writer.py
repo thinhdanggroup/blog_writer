@@ -57,7 +57,8 @@ class WriterAgent(AgentInterface):
         if suggestions and suggestions.strip() != "":
             content += wrap_text_with_tag(suggestions, "suggestions")
 
-        logger.info("\033[31m****Writer Agent human message****\n%s\033[0m", content)
+        # TODO: remove this line
+        # logger.info("\033[31m****Writer Agent human message****\n%s\033[0m", content)
         return HumanMessage(content=content)
 
     def run(

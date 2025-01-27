@@ -76,3 +76,17 @@ EXAMPLE_FILE = "example.md"
 FINAL_BLOG_FILE = "final_blog.md"
 SUGGESTION = "suggestion.json"
 INDEX_DIAGRAM = "index_diagram.json"
+ROOT_WORKING_DIR = f"{ROOT_DIR}/.working_space"
+
+
+class SnapshotFileType(StrEnum):
+    BLOG_V1 = "blog_v1"
+    BLOG_V2 = "blog_v2"
+    BLOG = "blog"
+    FINAL_BLOG = "final_blog"
+    REVIEW = "review"
+    EXAMPLE = "example"
+    SUGGESTION = "suggestion"
+    INDEX_DIAGRAM = "index_diagram"
+    REFERENCE_INPUT = "references.txt"
+    SEARCH_FILE = "search.json"

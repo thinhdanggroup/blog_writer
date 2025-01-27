@@ -54,13 +54,14 @@ def extract_reference_details(text):
     return matches[0]
 
 
-def create_final_format(storage):
+def create_final_format(storage: Storage):
     PARENT_FINAL_FOLDER = "final"
 
     # create current date in format YYYY-MM-DD
     dt = datetime.now()
     unique_time = dt.strftime("%Y-%m-%d")
-    FINAL_BLOG_FILE = f"{PARENT_FINAL_FOLDER}/{unique_time}-{storage.generated_name}.md"
+    name = storage.generated_name if storage and storage.generated_name else "blog"
+    FINAL_BLOG_FILE = f"{PARENT_FINAL_FOLDER}/{unique_time}-{name}.md"
     storage.write(FINAL_BLOG_FILE, fix_format(storage))
 
 

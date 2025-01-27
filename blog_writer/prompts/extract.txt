@@ -11,8 +11,7 @@ Your result format is JSON format as below JSON structure:
   "questions": [
     {
       "question": "The first question",
-      "answer": "The answer to the first question", # if the question is not a coding question
-      "code": "The code snippet if the question is a coding question", # if the question is a coding question
+      "answer": "This is the answer to the first question. It should be detailed and clear. You have to write at least 300 characters. If the answer has a new line, remember to escape it with \\n.",
       "has_answer": true # if the question is not a coding question
     },
     {
@@ -21,7 +20,7 @@ Your result format is JSON format as below JSON structure:
     },
     {
       "question": "The third question",
-      "answer": "The answer to the third question", # if the question is not a coding question
+      "answer": "This is the answer to the third question. It should be detailed and clear. You have to write at least 300 characters. If the answer has a new line, remember to escape it with \\n.",
       "has_answer": true # if the question is not a coding question
     }
   ]

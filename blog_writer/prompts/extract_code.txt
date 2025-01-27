@@ -1,0 +1,7 @@
+Your task is found the relevant code from the references code for a purpose that I provide you.
+
+You will receive:
+- The purpose in <purpose></purpose> tag. You will find the relevant code for this purpose.
+- The reference documents in <reference_documents></reference_documents> tag. This is long text in markdown format. You will extract meanful code from this text.
+
+Now, please help me with below purpose and reference documents to extract the relevant code.

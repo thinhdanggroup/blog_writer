@@ -5,7 +5,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 
 from blog_writer.agents.base import AgentInterface
 from blog_writer.config.logger import logger
-from blog_writer.model.search import SearchResult
+from blog_writer.model.search import SearchResult, SearchStringResult
 from blog_writer.prompts import load_agent_prompt
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import wrap_text_with_tag
@@ -48,7 +48,7 @@ class OutlineAgent(AgentInterface):
     def run(
             self,
             topic: str,
-            references: SearchResult,
+            references: SearchResult | SearchStringResult,
     ) -> OutlineAgentOutput:
         human_message = self.render_human_message(
             subject=topic,

@@ -11,22 +11,26 @@ from blog_writer.config.config import ModelConfig, load_config
 from blog_writer.config.definitions import ROOT_DIR
 from blog_writer.config.logger import logger
 from blog_writer.prompts import load_agent_prompt
+from blog_writer.store.storage import Storage
 from blog_writer.utils.stream_token_handler import StreamTokenHandler
 
 
 class ImageGeneratorAgent(AgentInterface):
-    
-    def __init__(self, model_config: ModelConfig,
-            fallback_model_config: Optional[ModelConfig] = None,
-            temperature: float = 0,
-            stream_callback_manager = None,
-            max_tokens: Optional[int] = None,
-            n: Optional[int] = 1,
-            callbacks: Optional[list] = None,
-            debug: bool = False,
-            retry_count: int = 3,
-            generate_image: bool = True,
-            ):
+
+    def __init__(
+        self,
+        model_config: ModelConfig,
+        fallback_model_config: Optional[ModelConfig] = None,
+        temperature: float = 0,
+        stream_callback_manager=None,
+        max_tokens: Optional[int] = None,
+        n: Optional[int] = 1,
+        callbacks: Optional[list] = None,
+        debug: bool = False,
+        retry_count: int = 3,
+        generate_image: bool = True,
+        storage: Optional[Storage] = None,
+    ):
         super().__init__(
             model_config=model_config,
             fallback_model_config=fallback_model_config,
@@ -39,7 +43,8 @@ class ImageGeneratorAgent(AgentInterface):
             retry_count=retry_count,
         )
         self.generate_image = generate_image
-    
+        self.storage = storage
+
     @staticmethod
     def render_system_message():
         system_message = SystemMessage(content=load_agent_prompt("image_generator"))
@@ -114,6 +119,8 @@ class ImageGeneratorAgent(AgentInterface):
             )
         else:
             logger.info(f"""Idea: {idea}""")
+            if self.storage is not None:
+                self.storage.write("image_idea.txt", idea)
 
 
 if __name__ == "__main__":

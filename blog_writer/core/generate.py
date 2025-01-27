@@ -40,11 +40,14 @@ from blog_writer.config.definitions import (
     SUBJECT,
 )
 from blog_writer.config.logger import logger
+from blog_writer.crawler.crawl_extractor import CrawlExtractor
+from blog_writer.crawler.crawl_service import CrawlingService
 from blog_writer.model.data import OutlineModel, StepTracker
-from blog_writer.model.search import SearchResult
+from blog_writer.model.search import SearchResult, SearchStringResult
 from blog_writer.store.storage import Storage
 from blog_writer.utils.encoder import ObjectEncoder
 from blog_writer.utils.file import read_file
+from blog_writer.utils.llm import count_tokens
 from blog_writer.utils.parse_suggestions import persist_suggestions
 from blog_writer.utils.stream_console import StreamConsoleCallbackManager
 from blog_writer.utils.text import load_json
@@ -138,7 +141,7 @@ def search_from_topics(
 
 def write_outline(
     subject: str,
-    references: SearchResult,
+    references: SearchResult | SearchStringResult,
     storage,
     debug: bool = False,
     config: Config = None,
@@ -335,6 +338,7 @@ def write_blog(
                 current_session=cur_section,
                 suggestions=suggestions,
                 retrieved_data=extracted_output.content,
+                references=references,
             )
             last_content = out_content.content
 
@@ -433,6 +437,18 @@ def generate(subject: str, load_from: str):
         references = search_from_topics(
             subject, output_topics.topics, config, storage, False
         )
+    elif config.generate_blog.crawl_reference_urls:
+        crawl_service = CrawlExtractor(
+            config=config,
+            storage=storage,
+            model_config=model_config_map["query_generator"],
+        )
+        output_topics = generate_topics(subject, storage, 5, 10, False, config)
+        references = crawl_service.search_from_topics(
+            subject=subject,
+            topics=output_topics.topics,
+        )
+
     else:
         references = None
 
@@ -472,6 +488,7 @@ def generate(subject: str, load_from: str):
     image_generate_agent = ImageGeneratorAgent(
         model_config=config.model_config_ts_chat,
         generate_image=config.generate_blog.writer_generate_image,
+        storage=storage,
     )
     image_generate_agent.run(outline_output.description, storage.working_name)
     logger.info("Gen image done")

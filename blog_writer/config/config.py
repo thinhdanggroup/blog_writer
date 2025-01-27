@@ -59,6 +59,7 @@ class WebExtractorConfig:
     def __init__(self):
         self.with_summary = get_bool(os.getenv("WITH_SUMMARY", "true"))
         self.temperature = float(os.getenv("WEB_EXTRACTOR_TEMPERATURE", "0.7"))
+        self.use_cache = get_bool(os.getenv("WEB_USE_CACHE", "false"))
 
 
 class GenerateBlogConfig:
@@ -73,6 +74,7 @@ class GenerateBlogConfig:
             os.getenv("WRITER_GENERATE_IMAGE", "false")
         )
         self.add_references = get_bool(os.getenv("ADD_REFERENCES", "true"))
+        self.crawl_reference_urls = get_bool(os.getenv("CRAWL_REFERENCE_URLS", "false"))
 
 
 class Config:
