@@ -171,3 +171,5 @@ data/hf_cookies
 data/ts_cookies.json
 .idea/*
 references.txt
+demo_app/*
+input/*

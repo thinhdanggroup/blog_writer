@@ -42,6 +42,7 @@ from blog_writer.config.definitions import (
 from blog_writer.config.logger import logger
 from blog_writer.crawler.crawl_extractor import CrawlExtractor
 from blog_writer.crawler.crawl_service import CrawlingService
+from blog_writer.crawler.file_extractor import FileReferenceExtractor
 from blog_writer.model.data import OutlineModel, StepTracker
 from blog_writer.model.search import SearchResult, SearchStringResult
 from blog_writer.store.storage import Storage
@@ -448,9 +449,16 @@ def generate(subject: str, load_from: str):
             subject=subject,
             topics=output_topics.topics,
         )
-
     else:
-        references = None
+        references = ""
+
+    if config.generate_blog.add_file_references:
+        file_reference_extractor = FileReferenceExtractor(
+            config=config,
+            storage=storage,
+            search_result=references,
+        )
+        references = file_reference_extractor.invoke()
 
     # references = None
     outline_output: OutlineModel = write_outline(

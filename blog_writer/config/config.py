@@ -75,6 +75,7 @@ class GenerateBlogConfig:
         )
         self.add_references = get_bool(os.getenv("ADD_REFERENCES", "true"))
         self.crawl_reference_urls = get_bool(os.getenv("CRAWL_REFERENCE_URLS", "false"))
+        self.add_file_references = get_bool(os.getenv("ADD_FILE_REFERENCES", "false"))
 
 
 class Config:
