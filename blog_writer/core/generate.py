@@ -421,7 +421,7 @@ def gen_image(description: str, working_name: str):
     logger.info("Gen image done")
 
 
-def generate(subject: str, load_from: str):
+def generate(subject: str, load_from: str) -> str:
     config = load_config()
     subject = subject.strip()
 
@@ -500,6 +500,8 @@ def generate(subject: str, load_from: str):
     )
     image_generate_agent.run(outline_output.description, storage.working_name)
     logger.info("Gen image done")
+    
+    return storage.workspace
 
 
 def main():

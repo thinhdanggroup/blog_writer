@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Writer</title>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            min-height: 100vh;
+            background: #f8f9fa;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #ffffff;
+            padding: 20px;
+            border-right: 1px solid #e1e4e8;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+        
+        .sidebar h3 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e4e8;
+            color: #24292e;
+        }
+        
+        .folder-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .folder-list li {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .folder-list li:hover {
+            background: #f1f8ff;
+        }
+        
+        .folder-list a {
+            color: #24292e;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+
+        .content-wrapper {
+            margin-left: 250px;
+            flex: 1;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .checkbox-container {
+            margin: 15px 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status, #logs {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        #logs {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h3>Recent Blogs</h3>
+        <ul class="folder-list">
+            {% for folder in folders %}
+            <li>
+                <a href="/blog/{{ folder }}">{{ folder }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="content-wrapper">
+        <div class="container">
+            <h1>Blog Writer</h1>
+            <form id="blogForm">
+                <div>
+                    <label for="topic">Blog Topic:</label>
+                    <textarea id="topic" name="topic" required>{{ input_content }}</textarea>
+                </div>
+                
+                <div class="checkbox-container">
+                    <label>
+                        <input type="checkbox" id="useLastFolder" name="useLastFolder" {% if last_folder %}checked{% endif %}>
+                        Use last folder {% if last_folder %}({{ last_folder }}){% endif %}
+                    </label>
+                </div>
+                
+                <button type="submit">Generate Blog</button>
+            </form>
+            
+            <div id="status"></div>
+            <div id="logs"></div>
+        </div>
+    </div>
+
+    <script>
+        let eventSource;
+        
+        function startEventStream() {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            const logsDiv = document.getElementById('logs');
+            logsDiv.style.display = 'block';
+            logsDiv.textContent = '';
+            
+            eventSource = new EventSource('/stream');
+            
+            eventSource.onmessage = function(event) {
+                if (event.data !== 'heartbeat') {
+                    logsDiv.textContent += event.data + '\n';
+                    logsDiv.scrollTop = logsDiv.scrollHeight;
+                }
+            };
+            
+            eventSource.onerror = function() {
+                eventSource.close();
+            };
+        }
+        
+        document.getElementById('blogForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusDiv = document.getElementById('status');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            // Update UI
+            statusDiv.style.display = 'block';
+            statusDiv.className = '';
+            statusDiv.textContent = 'Generating blog...';
+            submitButton.disabled = true;
+            
+            // Start log streaming
+            startEventStream();
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        topic: document.getElementById('topic').value,
+                        use_last_folder: document.getElementById('useLastFolder').checked
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'success';
+                    statusDiv.textContent = data.message;
+                    
+                    // Check for workspace in response
+                    if (data.workspace) {
+                        // Wait a bit for the blog to be generated
+                        setTimeout(() => {
+                            window.location.href = `/blog/${data.workspace}`;
+                        }, 2000);
+                    }
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                statusDiv.className = 'error';
+                statusDiv.textContent = `Error: ${error.message}`;
+                if (eventSource) {
+                    eventSource.close();
+                }
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
